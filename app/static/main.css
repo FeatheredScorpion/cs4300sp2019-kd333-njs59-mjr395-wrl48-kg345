@@ -13,7 +13,7 @@ padding-top: 15%;
 padding-bottom: 15px;
     background-image: url('https://media.istockphoto.com/photos/wood-table-on-blur-cafe-with-light-background-picture-id802636540?k=6&m=802636540&s=612x612&w=0&h=BrF4xjbeT_lLP_5-lUl4Gnh-COPprxgJV0J5IF9Lnrw=');
     background-repeat: no-repeat;
-    background-size: 100% 50%;
+    background-size: 100% 35%;
 
 }
 .global-search {
@@ -52,7 +52,8 @@ color: #4285F4;
   
 }
 #drink-id:hover {
-  box-shadow: 0 10px 25px rgba(33,33,33,.2); 
+  box-shadow: 0 10px 25px rgba(33,33,33,.2);
+
 }
 
 
