@@ -36,12 +36,15 @@
                 .then(function (myJson) {
                     const url = new URL(window.location);
                     let searchStr = url.search;
-                    searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length);
+                    searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
                     JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
-                        if ( d.name.indexOf(searchStr) > -1) {
+                        if ( d.name.toLowerCase().indexOf(searchStr) > -1
+                            || ( d.ingredients && (d.ingredients.toString().toLowerCase().indexOf(searchStr) > -1))
+                        ) {
                             var element = document.querySelector("div[data-type='template']").cloneNode(true);
                             element.querySelector("div.title").textContent = d.name;
-                            element.querySelector("div.desc").textContent = d.description;
+                            element.querySelector("div#desc").textContent = d.description;
+                            element.querySelector("p#ingredients").textContent = d.ingredients.toString();
                             element.querySelector("img.src").src = d.src;
                             element.style.display = "inline";
                             document.getElementById("drink-output").appendChild(element);
@@ -62,11 +65,15 @@
                 <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
                     <img alt="http://worldartsme.com/images/cocktail-glass-clipart-1.jpg" style="width: 100%;  overflow: hidden" class="src">
                 </div>
-                <div class="caption">
+                <h3 class="">
                     <div class="title">Thumbnail label</div>
+                </h3>
+                <p>Description:</p>
+                <div id="desc" class="desc" style="overflow: auto;">
                 </div>
-                <div id="desc" class="desc" style="overflow: auto; height:50%">
-                </div>
+                <br>
+                <p>Ingredients:</p>
+                <p id="ingredients"></p>
             </div>
         </div>
     </div>
