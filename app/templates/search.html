@@ -1,7 +1,7 @@
 <html>
 <head>
-    <link rel="stylesheet" href="/static/styles/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/styles/main.css">
+    <link rel="stylesheet" href="../static/styles/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/styles/main.css">
 </head>
 <body>
 <div class="topcorner">
@@ -37,7 +37,6 @@
                     const url = new URL(window.location);
                     let searchStr = url.search;
                     searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length);
-                    console.log(searchStr);
                     JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
                         if ( d.name.indexOf(searchStr) > -1) {
                             var element = document.querySelector("div[data-type='template']").cloneNode(true);
@@ -61,12 +60,12 @@
         <div class="col-sm-6 col-md-4" style="width: 500px; height: 500px; padding: 10px;">
             <div class="thumbnail" style="width: 100%; height:100%">
                 <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
-                    <img src="..." alt="..." style="width: 100%;  overflow: hidden" class="src">
+                    <img alt="http://worldartsme.com/images/cocktail-glass-clipart-1.jpg" style="width: 100%;  overflow: hidden" class="src">
                 </div>
                 <div class="caption">
                     <div class="title">Thumbnail label</div>
                 </div>
-                <div class="desc" style="overflow: auto; height:50%">....>
+                <div id="desc" class="desc" style="overflow: auto; height:50%">
                 </div>
             </div>
         </div>
