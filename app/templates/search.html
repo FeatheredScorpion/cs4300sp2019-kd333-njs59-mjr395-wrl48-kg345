@@ -1,70 +1,76 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="/static/bootstrap.min.css">
-        <link rel="stylesheet" href="/static/main.css">
-    </head>
-    <body>
-        <div class="topcorner">
-            <p>Project Name: ROCKTAILS</p>
-            <p>Student Name: Megan Rochlin</p>
-        </div>
-        <form class="form-inline global-search">
-            <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
-                ROCKTAILS
-            </h1>
-            
-            <br><br>
-            
-            <div class="form-group">
-                <input id="input" type="text" name="search" class="form-control" placeholder="Your Input">
-            </div>
-            <button type="submit" class="btn btn-info"> 
-                 Go
-            </button>
-        </form>
-        <form class="form-inline global-search">
-         {% if data %}
-            <script>
-              var b;
-              var a = fetch("../static/drinks.json")
-                    .then(function(myJson) {
-                      return myJson.json();
+<head>
+    <link rel="stylesheet" href="/static/styles/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styles/main.css">
+</head>
+<body>
+<div class="topcorner">
+    <p>Project Name: ROCKTAILS</p>
+    <p>Student Name: Megan Rochlin</p>
+</div>
+<div class="user topcorner">
+    <a>USER</a>
+</div>
+<form class="form-inline global-search">
+    <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
+        ROCKTAILS
+    </h1>
+
+    <br><br>
+
+    <div class="form-group">
+        <input id="input" type="text" name="search" class="form-control" placeholder="Your Input">
+    </div>
+    <button type="submit" class="btn btn-info">
+        Go
+    </button>
+</form>
+<form class="form-inline global-search">
+    {% if data %}
+        <script style="display: none">
+            var b;
+            var a = fetch("../static/drinks.json")
+                .then(function (myJson) {
+                    return myJson.json();
+                })
+                .then(function (myJson) {
+                    const url = new URL(window.location);
+                    let searchStr = url.search;
+                    searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length);
+                    console.log(searchStr);
+                    JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
+                        if (d.name === searchStr) {
+                            var element = document.querySelector("div[data-type='template']").cloneNode(true);
+                            element.querySelector("div.title").textContent = d.name;
+                            element.querySelector("div.desc").textContent = d.description;
+                            element.querySelector("img.src").src = d.src;
+                            element.style.display = "inline";
+                            document.getElementById("drink-output").appendChild(element);
+                        }
                     })
-                    .then(function(myJson) {
-                          JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function(d){
-                              var element = document.querySelector("div[data-type='template']").cloneNode(true);
-                              element.querySelector("div.title").textContent = d.name;
-                              element.querySelector("div.desc").textContent = d.description;
-                              element.querySelector("img.src").src = d.src
-                              element.style.display = "inline";
-                              document.getElementById("drink-output").appendChild(element);
-                          })
-                  })
-                    ;
-          </script>
-        {% endif %}
-        </form>
-        <center>
-            <div id="drink-output" style="width:60%; margin-top :200px">
-        </center>
-        </div>
-        <div class="row">
-        <!-- template -->
-        <div style="display: none" data-type="template" id="drink-id" class="cocktail">
-              <div class="col-sm-6 col-md-4" style="width: 500; height: 500; padding: 10;">
-                <div class="thumbnail" style = "width: 100%; height:100%">
-                    <div style = "height: 250; overflow: hidden; border-width: 2; border-style: solid">
-                        <img src="..." alt="..."style="width: 100%;  overflow: hidden" class="src">
-                    </div>
-                  <div class="caption">
-                    <div class = "title">Thumbnail label</div>
-                  </div>
-                  <div class = "desc" style = "overflow: auto; height:50%">....>
-                  </div>
+                })
+            ;
+        </script>
+    {% endif %}
+</form>
+<div id="drink-output" style="width:60%; margin: auto; padding-bottom: 10px;">
+</div>
+<div class="row">
+    <!-- template -->
+    <div style="display: none;" data-type="template" id="drink-id" class="cocktail">
+        <div class="col-sm-6 col-md-4" style="width: 500px; height: 500px; padding: 10px;">
+            <div class="thumbnail" style="width: 100%; height:100%">
+                <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
+                    <img src="..." alt="..." style="width: 100%;  overflow: hidden" class="src">
                 </div>
-              </div>
+                <div class="caption">
+                    <div class="title">Thumbnail label</div>
+                </div>
+                <div class="desc" style="overflow: auto; height:50%">....>
+                </div>
             </div>
         </div>
-    </body>
+    </div>
+</div>
+</body>
 </html>
-<st>

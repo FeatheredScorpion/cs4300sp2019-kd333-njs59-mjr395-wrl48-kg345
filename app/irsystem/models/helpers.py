@@ -2,20 +2,23 @@
 from flask import jsonify
 import base64
 import json
-import numpy as np 
+import numpy as np
+
+
 def http_json(result, bool):
-	result.update({ "success": bool })
-	return jsonify(result)
+    result.update({"success": bool})
+    return jsonify(result)
 
 
 def http_resource(result, name, bool=True):
-	resp = { "data": { name : result }}
-	return http_json(resp, bool)
+    resp = {"data": {name: result}}
+    return http_json(resp, bool)
 
 
-def http_errors(result): 
-	errors = { "data" : { "errors" : result.errors["_schema"] }}
-	return http_json(errors, False)
+def http_errors(result):
+    errors = {"data": {"errors": result.errors["_schema"]}}
+    return http_json(errors, False)
+
 
 class NumpyEncoder(json.JSONEncoder):
 
@@ -28,7 +31,7 @@ class NumpyEncoder(json.JSONEncoder):
                 obj_data = obj.data
             else:
                 cont_obj = np.ascontiguousarray(obj)
-                assert(cont_obj.flags['C_CONTIGUOUS'])
+                assert (cont_obj.flags['C_CONTIGUOUS'])
                 obj_data = cont_obj.data
             data_b64 = base64.b64encode(obj_data)
             return dict(__ndarray__=data_b64,
@@ -36,7 +39,8 @@ class NumpyEncoder(json.JSONEncoder):
                         shape=obj.shape)
         # Let the base class default method raise the TypeError
         return json.JSONEncoder(self, obj)
-        
+
+
 def json_numpy_obj_hook(dct):
     """Decodes a previously encoded numpy ndarray with proper shape and dtype.
     :param dct: (dict) json encoded ndarray
