@@ -1,26 +1,5 @@
 <html>
     <head>
-    <script>
-        console.log("hello")
-        var b;
-        var a = fetch("../static/drinks.json")
-              .then(function(myJson) {
-                return myJson.json();
-              })
-              .then(function(myJson) {
-                  console.log(JSON.parse(JSON.stringify(myJson))["drinks"]);
-                    JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function(d){
-                        var element = document.querySelector("div[data-type='template']").cloneNode(true);
-                        element.querySelector("div.title").textContent = d.name;
-                        element.querySelector("div.desc").textContent = d.description;
-                        element.querySelector("img.src").src = d.src
-                        element.style.display = "inline";
-                        document.getElementById("drink-output").appendChild(element);
-                    })
-            })
-              ;
-    console.log(a)
-    </script>
         <link rel="stylesheet" href="/static/bootstrap.min.css">
         <link rel="stylesheet" href="/static/main.css">
     </head>
@@ -45,11 +24,24 @@
         </form>
         <form class="form-inline global-search">
          {% if data %}
-            <h1>{{output_message}}</h1>
-            {% for d in data %}  
-                <br>
-                <p>{{d}}</p>
-            {% endfor %}
+            <script>
+              var b;
+              var a = fetch("../static/drinks.json")
+                    .then(function(myJson) {
+                      return myJson.json();
+                    })
+                    .then(function(myJson) {
+                          JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function(d){
+                              var element = document.querySelector("div[data-type='template']").cloneNode(true);
+                              element.querySelector("div.title").textContent = d.name;
+                              element.querySelector("div.desc").textContent = d.description;
+                              element.querySelector("img.src").src = d.src
+                              element.style.display = "inline";
+                              document.getElementById("drink-output").appendChild(element);
+                          })
+                  })
+                    ;
+          </script>
         {% endif %}
         </form>
         <center>
