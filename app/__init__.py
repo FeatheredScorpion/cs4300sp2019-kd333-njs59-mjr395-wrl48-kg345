@@ -85,5 +85,31 @@ def hello():
 
 
 
+#returns an array of good types
+@app.route("/good-types/", methods=['GET', 'POST'])
+def return_good_types():
+	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+	json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+	data = json.load(open(json_url))
+
+	#good types
+	good_words = []
+	words = {}
+	for drink in data["drinks"]:
+		tokens = tokenize(drink["description"])
+		for token in tokens:
+			if token not in words:
+				words[token] = 0
+			words[token] += 1
+	good_words = []
+	for word in words:
+	    if words[word] > 1:
+	        good_words.append(word)
+	return json.dumps(good_words)
+
+
+
+
+
 
 
