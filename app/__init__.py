@@ -97,7 +97,7 @@ def return_good_types():
     good_words = []
     words = {}
     for drink in data["drinks"]:
-        tokens = tokenize(drink["description"])
+        tokens = tokenize(drink["name"])
         for token in tokens:
             if token not in words:
                 words[token] = 0
