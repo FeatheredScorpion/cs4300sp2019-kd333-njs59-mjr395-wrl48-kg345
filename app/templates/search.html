@@ -39,8 +39,8 @@
                     let searchStr = url.search;
                     searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
                     JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
-                        if ( d.name.toLowerCase().indexOf(searchStr) > -1
-                            || ( d.ingredients && (d.ingredients.toString().toLowerCase().indexOf(searchStr) > -1))
+                        if (d.name.toLowerCase().indexOf(searchStr) > -1
+                            || (d.ingredients && (d.ingredients.toString().toLowerCase().indexOf(searchStr) > -1))
                         ) {
                             var element = document.querySelector("div[data-type='template']").cloneNode(true);
                             element.querySelector("div.title").textContent = d.name;
@@ -64,7 +64,8 @@
         <div class="col-sm-6 col-md-4" style="width: 500px; height: 500px; padding: 10px;">
             <div class="thumbnail" style="width: 100%; height:100%">
                 <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
-                    <img alt="http://worldartsme.com/images/cocktail-glass-clipart-1.jpg" style="width: 100%;  overflow: hidden" class="src">
+                    <img alt="http://worldartsme.com/images/cocktail-glass-clipart-1.jpg"
+                         style="width: 100%;  overflow: hidden" class="src">
                 </div>
                 <h3 class="">
                     <div class="title">Thumbnail label</div>
@@ -79,72 +80,75 @@
         </div>
     </div>
 </div>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-      <link rel="stylesheet" href="/resources/demos/style.css">
-      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script>
-        suggestions = []
-        function postData(input) {
-            $.ajax({
-                type: "POST",
-                url: "/good-types/",
-                data: { param: input },
-                async: false,
-                success: callbackFunc
-            });
-        }
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+    suggestions = []
 
-        function callbackFunc(response) {
-            // do something with the response
-            suggestions = JSON.parse(response);
-        }
+    function postData(input) {
+        $.ajax({
+            type: "POST",
+            url: "/good-types/",
+            data: {param: input},
+            async: false,
+            success: callbackFunc
+        });
+    }
 
-    $(function() {
+    function callbackFunc(response) {
+        // do something with the response
+        suggestions = JSON.parse(response);
+    }
+
+    $(function () {
         postData("post data")
         console.log("hello");
         console.log(suggestions);
         var availableTags = suggestions;
-        function split( val ) {
-          return val.split( /,\s*/ );
+
+        function split(val) {
+            return val.split(/,\s*/);
         }
-        function extractLast( term ) {
-          return split( term ).pop();
+
+        function extractLast(term) {
+            return split(term).pop();
         }
-     
-    $( "#tags" )
-      // don't navigate away from the field on tab when selecting an item
-      .on( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.TAB &&
-            $( this ).autocomplete( "instance" ).menu.active ) {
-          event.preventDefault();
-        }
-      })
-      .autocomplete({
-        minLength: 0,
-        source: function( request, response ) {
-          // delegate back to autocomplete, but extract the last term
-          response( $.ui.autocomplete.filter(
-            availableTags, extractLast( request.term ) ) );
-        },
-        focus: function() {
-          // prevent value inserted on focus
-          return false;
-        },
-        select: function( event, ui ) {
-          var terms = split( this.value );
-          // remove the current input
-          terms.pop();
-          // add the selected item
-          terms.push( ui.item.value );
-          // add placeholder to get the comma-and-space at the end
-          terms.push( "" );
-          this.value = terms.join( ", " );
-          return false;
-        }
-      });
-  } );
+
+        $("#tags")
+        // don't navigate away from the field on tab when selecting an item
+            .on("keydown", function (event) {
+                if (event.keyCode === $.ui.keyCode.TAB &&
+                    $(this).autocomplete("instance").menu.active) {
+                    event.preventDefault();
+                }
+            })
+            .autocomplete({
+                minLength: 0,
+                source: function (request, response) {
+                    // delegate back to autocomplete, but extract the last term
+                    response($.ui.autocomplete.filter(
+                        availableTags, extractLast(request.term)));
+                },
+                focus: function () {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function (event, ui) {
+                    var terms = split(this.value);
+                    // remove the current input
+                    terms.pop();
+                    // add the selected item
+                    terms.push(ui.item.value);
+                    // add placeholder to get the comma-and-space at the end
+                    terms.push("");
+                    this.value = terms.join(", ");
+                    return false;
+                }
+            });
+    });
 
 
 </script>
