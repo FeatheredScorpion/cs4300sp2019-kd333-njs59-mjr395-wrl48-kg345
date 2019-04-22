@@ -85,7 +85,6 @@ def compute_doc_norms(index, idf, n_docs):
 def index_search(query, index, idf, doc_norms):
 	dic = {}
 	tokens = tokenize(query.lower())
-	print(index)
 	for token in tokens:
 	    if token in index:
 	        for (doc_id) in index[token]:
@@ -153,11 +152,10 @@ def search():
 	idf = compute_idf(inverted_index, len(good_words))
 	doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
 	results = index_search(query, inverted_index, idf, doc_norms)
-	for (score, doc_id) in results:
-		print(n_docs[doc_id])
-
-
-	return redirect('/')
+	results = [n_docs[x[1]] for x in results]
+	print(results)
+	output = [x for x in data["drinks"] if x["name"] in results]
+	return json.dumps(output)
 # returns an array of good types
 @app.route("/good-types/", methods=['GET', 'POST'])
 def return_good_types():

@@ -31,50 +31,38 @@
         {% if data %}
             <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
             <script style="display: none">
-                var b;
-                var a = fetch("../static/drinks.json")
-                    .then(function (myJson) {
-                        return myJson.json();
-                    })
-                    .then(function (myJson) {
-                        const url = new URL(window.location);
-                        let searchStr = url.search;
-                        searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
-                        JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
-                            if (d.name.toLowerCase().indexOf(searchStr) > -1
-                                || (d.ingredients && (d.ingredients.toString().toLowerCase().indexOf(searchStr) > -1))
-                            ) {
-                                var element = document.querySelector("div[data-type='template']").cloneNode(true);
-                                element.querySelector("div.title").textContent = d.name;
-                                element.querySelector("div#desc").textContent = d.description;
-                                element.querySelector("p#ingredients").textContent = d.ingredients.toString();
-                                element.querySelector("img.src").src = d.src;
-                                element.style.display = "inline";
-                                document.getElementById("drink-output").appendChild(element);
-                            }
+                const url = new URL(window.location);
+                let searchStr = url.search;
+                searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
+                var new_url = "/search-results/?query=" + searchStr;
+                function postData(input) {
+                    $.ajax({
+                        type: "POST",
+                        url: new_url,
+                        data: { param: input },
+                        async: false,
+                        success: callbackFunc
+                    });
+                }
+
+                function callbackFunc(response) {
+                    // do something with the response
+                    console.log( JSON.parse(response))
+                    document.addEventListener("DOMContentLoaded", function() { 
+                        JSON.parse(response).forEach(function (d) {
+                         {
+                            var element = document.querySelector("div[data-type='template']").cloneNode(true);
+                            element.querySelector("div.title").textContent = d.name;
+                            element.querySelector("div#desc").textContent = d.description;
+                            element.querySelector("p#ingredients").textContent = d.ingredients.toString();
+                            element.querySelector("img.src").src = d.src;
+                            element.style.display = "inline";
+                            document.getElementById("drink-output").appendChild(element);
+                        }
                         })
-                    })
-                ;
-
-                        const url = new URL(window.location);
-            let searchStr = url.search;
-            searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
-            var new_url = "/search-results/?query=" + searchStr;
-        function postData(input) {
-            $.ajax({
-                type: "POST",
-                url: new_url,
-                data: { param: input },
-                async: false,
-                success: callbackFunc
-            });
-        }
-
-        function callbackFunc(response) {
-            // do something with the response
-            suggestions = JSON.parse(response);
-        }
-        postData('data');
+                     }
+                )}      
+            postData('data');
             </script>
         {% endif %}
     </form>
