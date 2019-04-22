@@ -21,14 +21,17 @@
     <div class="form-group">
         <input id="tags" type="text" name="search" class="form-control" placeholder="Your Input">
     </div>
-    <button type="submit" class="btn btn-info">
+    <button type="submit" class="btn btn-info" on>
         Go
     </button>
 </form>
 
 <form class="form-inline global-search">
     {% if data %}
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script style="display: none">
+                //search
             var b;
             var a = fetch("../static/drinks.json")
                 .then(function (myJson) {
@@ -53,6 +56,25 @@
                     })
                 })
             ;
+            const url = new URL(window.location);
+            let searchStr = url.search;
+            searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
+            var new_url = "/search-results/?query=" + searchStr;
+        function postData(input) {
+            $.ajax({
+                type: "POST",
+                url: new_url,
+                data: { param: input },
+                async: false,
+                success: callbackFunc
+            });
+        }
+
+        function callbackFunc(response) {
+            // do something with the response
+            suggestions = JSON.parse(response);
+        }
+        postData('data');
         </script>
     {% endif %}
 </form>
@@ -103,8 +125,6 @@
 
     $(function() {
         postData("post data")
-        console.log("hello");
-        console.log(suggestions);
         var availableTags = suggestions;
         function split( val ) {
           return val.split( /,\s*/ );
