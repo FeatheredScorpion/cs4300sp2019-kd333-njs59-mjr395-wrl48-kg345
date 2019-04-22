@@ -85,7 +85,6 @@ def compute_doc_norms(index, idf, n_docs):
 def index_search(query, index, idf, doc_norms):
 	dic = {}
 	tokens = tokenize(query.lower())
-	print(index)
 	for token in tokens:
 	    if token in index:
 	        for (doc_id) in index[token]:
@@ -122,7 +121,23 @@ def search():
 	#getting the query document
 	print(request)
 	query = request.args.get('query')
+	ingredients = tokenize(request.args.get('ingredients'))
+	print(ingredients)
 	print(query)
+
+	drinks_w_ingredients = {}
+	for drink in data["drinks"]:
+		drink_ingredients = []
+		for i in drink["ingredients"]:
+			drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
+		drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
+		print(drink_ingredients)
+		good_result = True
+		for ingredient in ingredients:
+			if ingredient not in drink_ingredients:
+				good_result = False  
+		if good_result:
+			drinks_w_ingredients[drink["name"]] = 1
 
 	n_docs = []
 	#construct inverted index
@@ -153,11 +168,10 @@ def search():
 	idf = compute_idf(inverted_index, len(good_words))
 	doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
 	results = index_search(query, inverted_index, idf, doc_norms)
-	for (score, doc_id) in results:
-		print(n_docs[doc_id])
-
-
-	return redirect('/')
+	results = [n_docs[x[1]] for x in results]
+	print(results)
+	output = [x for x in data["drinks"] if x["name"] in results and x["name"] in drinks_w_ingredients]
+	return json.dumps(output)
 # returns an array of good types
 @app.route("/good-types/", methods=['GET', 'POST'])
 def return_good_types():
@@ -181,30 +195,53 @@ def return_good_types():
 	        good_words.append(word)
 	return json.dumps(good_words)
 
-# returns a list of resulting elements that satisfies the boolean search
-@app.route("/booleanSearch/", methods=['GET', 'POST'])
-def boolean_search(query, index=inverted_index, tokenizer=treebank_tokenizer):
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
-    data = json.load(open(json_url))
+	# returns an array of good types from ingredients
+@app.route("/good-ingredients/", methods=['GET', 'POST'])
+def return_ingredients():
+	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+	json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+	data = json.load(open(json_url))
 
-    ans = []
-    temp1 = set()
-    temp2 = set()
-    tokenized = tokenizer.tokenize(query.lower())
-    count = 0
-    for x in tokenized:
-        temp2 = set([a[0] for a in index[x]])
-        if(count == 0):
-            ans = list(temp2)
-            count+=1
-            continue
-        if(len(ans) == 0):
-            return ans
-        if(len(x) == 1 and x in string.punctuation):
-            count+=1
-            continue
-        else:
-            temp1 = set(ans)
-            ans = list(temp2.intersection(temp1))
-    return ans
+	#good types
+	good_words = []
+	words = {}
+	for drink in data["drinks"]:
+		tokens = tokenize(drink["ingredients"])
+		if tokens is not None:
+			for token in tokens:
+				if token not in words:
+					words[token] = 0
+				words[token] += 1
+	good_words = []
+	for word in words:
+	    if words[word] > 1:
+	        good_words.append(word)
+	return json.dumps(good_words)
+
+# # returns a list of resulting elements that satisfies the boolean search
+# @app.route("/booleanSearch/", methods=['GET', 'POST'])
+# def boolean_search(query, index=inverted_index, tokenizer=treebank_tokenizer):
+#     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+#     json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+#     data = json.load(open(json_url))
+
+#     ans = []
+#     temp1 = set()
+#     temp2 = set()
+#     tokenized = tokenizer.tokenize(query.lower())
+#     count = 0
+#     for x in tokenized:
+#         temp2 = set([a[0] for a in index[x]])
+#         if(count == 0):
+#             ans = list(temp2)
+#             count+=1
+#             continue
+#         if(len(ans) == 0):
+#             return ans
+#         if(len(x) == 1 and x in string.punctuation):
+#             count+=1
+#             continue
+#         else:
+#             temp1 = set(ans)
+#             ans = list(temp2.intersection(temp1))
+#     return ans
