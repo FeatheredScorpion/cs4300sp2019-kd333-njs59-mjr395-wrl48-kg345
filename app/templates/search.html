@@ -1,62 +1,62 @@
 <html>
-<head>
-    <link rel="stylesheet" href="../static/styles/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/styles/main.css">
-</head>
-<body>
-<div class="topcorner">
-    <p>Project Name: ROCKTAILS</p>
-    <p>Student Name: Megan Rochlin</p>
-</div>
-<div class="user topcorner">
-    <a>USER</a>
-</div>
-<form class="form-inline global-search">
-    <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
-        ROCKTAILS
-    </h1>
-
-    <br><br>
-
-    <div class="form-group">
-        <input id="tags" type="text" name="search" class="form-control" placeholder="Your Input">
+    <head>
+        <Title>Rocktails</Title>
+        <link rel="stylesheet" href="../static/styles/bootstrap.min.css">
+        <link rel="stylesheet" href="../static/styles/main.css">
+        <link rel="shortcut icon" type="image/png" href="../static/img/favicon-1.png"/>
+    </head>
+    <body>
+    <div class="topcorner">
+        <p>Project Name: ROCKTAILS</p>
+        <p>Student Name: Kerri Diamond: kd333, Kaitlin Green: kg345, William Lin: wrl48, Megan Rochlin: mjr395, Nathaniel Schickler: njs59</p>
     </div>
-    <button type="submit" class="btn btn-info" on>
-        Go
-    </button>
-</form>
+    <div class="user_topcorner">
+        <a>USER</a>
+    </div>
+    <form class="form-inline global-search">
+        <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
+            ROCKTAILS
+        </h1>
 
-<form class="form-inline global-search">
-    {% if data %}
+        <br><br>
+        <div class="form-group">
+            <input id="tags" type="text" name="search" class="form-control" placeholder="Your Input">
+        </div>
+        <button type="submit" class="btn btn-info">
+            Go
+        </button>
+    </form>
 
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script style="display: none">
-                //search
-            var b;
-            var a = fetch("../static/drinks.json")
-                .then(function (myJson) {
-                    return myJson.json();
-                })
-                .then(function (myJson) {
-                    const url = new URL(window.location);
-                    let searchStr = url.search;
-                    searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
-                    JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
-                        if ( d.name.toLowerCase().indexOf(searchStr) > -1
-                            || ( d.ingredients && (d.ingredients.toString().toLowerCase().indexOf(searchStr) > -1))
-                        ) {
-                            var element = document.querySelector("div[data-type='template']").cloneNode(true);
-                            element.querySelector("div.title").textContent = d.name;
-                            element.querySelector("div#desc").textContent = d.description;
-                            element.querySelector("p#ingredients").textContent = d.ingredients.toString();
-                            element.querySelector("img.src").src = d.src;
-                            element.style.display = "inline";
-                            document.getElementById("drink-output").appendChild(element);
-                        }
+    <form class="form-inline global-search">
+        {% if data %}
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+            <script style="display: none">
+                var b;
+                var a = fetch("../static/drinks.json")
+                    .then(function (myJson) {
+                        return myJson.json();
                     })
-                })
-            ;
-            const url = new URL(window.location);
+                    .then(function (myJson) {
+                        const url = new URL(window.location);
+                        let searchStr = url.search;
+                        searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
+                        JSON.parse(JSON.stringify(myJson))["drinks"].forEach(function (d) {
+                            if (d.name.toLowerCase().indexOf(searchStr) > -1
+                                || (d.ingredients && (d.ingredients.toString().toLowerCase().indexOf(searchStr) > -1))
+                            ) {
+                                var element = document.querySelector("div[data-type='template']").cloneNode(true);
+                                element.querySelector("div.title").textContent = d.name;
+                                element.querySelector("div#desc").textContent = d.description;
+                                element.querySelector("p#ingredients").textContent = d.ingredients.toString();
+                                element.querySelector("img.src").src = d.src;
+                                element.style.display = "inline";
+                                document.getElementById("drink-output").appendChild(element);
+                            }
+                        })
+                    })
+                ;
+
+                        const url = new URL(window.location);
             let searchStr = url.search;
             searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
             var new_url = "/search-results/?query=" + searchStr;
@@ -75,57 +75,61 @@
             suggestions = JSON.parse(response);
         }
         postData('data');
-        </script>
-    {% endif %}
-</form>
-<div id="drink-output" style="width:60%; margin: auto; padding-bottom: 10px;">
-</div>
-<div class="row">
-    <!-- template -->
-    <div style="display: none;" data-type="template" id="drink-id" class="cocktail">
-        <div class="col-sm-6 col-md-4" style="width: 500px; height: 500px; padding: 10px;">
-            <div class="thumbnail" style="width: 100%; height:100%">
-                <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
-                    <img alt="http://worldartsme.com/images/cocktail-glass-clipart-1.jpg" style="width: 100%;  overflow: hidden" class="src">
+            </script>
+        {% endif %}
+    </form>
+    <div id="drink-output" style="width:60%; margin: auto; padding-bottom: 10px;">
+    </div>
+    <div class="row">
+        <!-- template -->
+        <div style="display: none;" data-type="template" id="drink-id" class="cocktail">
+            <div class="col-sm-6 col-md-4" style="width: 500px; height: 500px; padding: 10px;">
+                <div class="thumbnail" style="width: 100%; height:100%">
+                    <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
+                        <img src = '../static/img/drinks_noimg_1280.png' alt="No Image"
+                         onerror="if (this.src != 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
+                             style="width: 100%;  overflow: hidden" class="src">
+                    </div>
+                    <h3 class="">
+                        <div class="title">Thumbnail label</div>
+                    </h3>
+                    <p>Description:</p>
+                    <div id="desc" class="desc" style="overflow: auto;">
+                    </div>
+                    <br>
+                    <p>Ingredients:</p>
+                    <p id="ingredients"></p>
                 </div>
-                <h3 class="">
-                    <div class="title">Thumbnail label</div>
-                </h3>
-                <p>Description:</p>
-                <div id="desc" class="desc" style="overflow: auto;">
-                </div>
-                <br>
-                <p>Ingredients:</p>
-                <p id="ingredients"></p>
             </div>
         </div>
     </div>
-</div>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-      <link rel="stylesheet" href="/resources/demos/style.css">
-      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         suggestions = []
+
         function postData(input) {
             $.ajax({
                 type: "POST",
                 url: "/good-types/",
-                data: { param: input },
+                data: {param: input},
                 async: false,
                 success: callbackFunc
             });
         }
 
-        function callbackFunc(response) {
-            // do something with the response
-            suggestions = JSON.parse(response);
-        }
+                function callbackFunc(response) {
+                    // do something with the response
+                    suggestions = JSON.parse(response);
+                }
 
     $(function() {
         postData("post data")
         var availableTags = suggestions;
+        console.log(availableTags)
         function split( val ) {
           return val.split( /,\s*/ );
         }
@@ -166,7 +170,64 @@
       });
   } );
 
+            function split(val) {
+                return val.split(/,\s*/);
+            }
 
-</script>
-</body>
+            function extractLast(term) {
+                return split(term).pop();
+            }
+
+            $("#tags")
+            // don't navigate away from the field on tab when selecting an item
+                .on("keydown", function (event) {
+                    if (event.keyCode === $.ui.keyCode.TAB &&
+                        $(this).autocomplete("instance").menu.active) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function (request, response) {
+                        // delegate back to autocomplete, but extract the last term
+                        response($.ui.autocomplete.filter(
+                            availableTags, extractLast(request.term)));
+                    },
+                    focus: function () {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function (event, ui) {
+                        var terms = split(this.value);
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push(ui.item.value);
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push("");
+                        this.value = terms.join(", ");
+                        return false;
+                    }
+                });
+        </script>
+        <script>
+            const url = new URL(window.location);
+            searchStr = url.search;
+            searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
+
+            function booleanSearch(searchStr) {
+                $.ajax({
+                    type: "POST",
+                    url: "/booleanSearch/",
+                    data: {param: searchStr},
+                    async: false,
+                    success: callbackFunc
+                });
+            }
+            function callbackFunc(response) {
+                // do something with the response
+                suggestions = JSON.parse(response);
+            }
+        </script>
+    </body>
 </html>
