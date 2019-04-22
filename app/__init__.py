@@ -126,16 +126,18 @@ def search():
 	print(query)
 
 	drinks_w_ingredients = {}
+	if len(ingredients) == 0:
+		for drink in data["drinks"]:
+			drinks_w_ingredients[drink["name"]] = 1
 	for drink in data["drinks"]:
 		drink_ingredients = []
 		for i in drink["ingredients"]:
 			drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
 		drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
-		print(drink_ingredients)
-		good_result = True
+		good_result = False
 		for ingredient in ingredients:
 			if ingredient not in drink_ingredients:
-				good_result = False  
+				good_result = True
 		if good_result:
 			drinks_w_ingredients[drink["name"]] = 1
 
