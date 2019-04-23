@@ -75,6 +75,7 @@ def compute_idf(inv_idx, n_docs, min_df=10, max_df_ratio=0.95):
 #compute norms
 def compute_doc_norms(index, idf, n_docs):
     result = np.zeros(n_docs)
+    print(n_docs)
     for word in index:
         for doc in index[word]:
             if word in idf:
@@ -83,13 +84,17 @@ def compute_doc_norms(index, idf, n_docs):
     return result
 
 def index_search(query, index, idf, doc_norms):
+	print(idf)
 	dic = {}
 	tokens = tokenize(query.lower())
 	for token in tokens:
 	    if token in index:
 	        for (doc_id) in index[token]:
 	            if doc_id not in dic:
-	                dic[doc_id] = tokens.count(token) * idf[token] * idf[token]
+	            	idf_token = 0
+	            	if token in idf:
+	            		idf_token = idf[token]
+	            	dic[doc_id] = tokens.count(token) * idf_token * idf_token
 	            else :
 	                dic[doc_id] += tokens.count(token)
 	                
@@ -97,7 +102,9 @@ def index_search(query, index, idf, doc_norms):
 	q = 0
 	for word in index:
 	    if word in tokens:
-	        q += ((tokens.count(word)) * idf[word]) ** 2
+	       	if token in idf:
+	       		idf_token = idf[token]
+	        q += ((tokens.count(word)) * idf_token ** 2)
 	q = q ** .5
 
 	result = []
@@ -148,8 +155,8 @@ def search():
 	words = {}
 	doc_index = 0
 	for drink in data["drinks"]:
-		tokens = tokenize(drink["description"])
 		n_docs.append(drink["name"])
+		tokens = tokenize(drink["description"]) 
 		for token in tokens:
 			if token not in words:
 				words[token] = 0
@@ -165,7 +172,7 @@ def search():
 	        good_words.append(word)
 	        reverse_index_good_words[word] = index 
 	        index += 1
-
+	print(n_docs)
 	#compute idf
 	idf = compute_idf(inverted_index, len(good_words))
 	doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
