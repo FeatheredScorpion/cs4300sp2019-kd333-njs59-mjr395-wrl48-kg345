@@ -36,12 +36,6 @@
 .topcorner {
     position: absolute;
     top: 2%;
-    float: left;
-}
-
-.user_topcorner {
-    position: absolute;
-    top: 2%;
     right: 2%;
 }
 
@@ -71,8 +65,40 @@
 
 }
 
-.cocktail {
+#drink-output {
+    width: 60vw;
+    margin: 0 auto;
+    float: none;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.cocktail-card {
     margin: auto;
+    text-align: center;
+}
+
+.card {
+    width: 500px;
+    height: 500px;
+    padding: 10px;
+}
+
+.display {
+    height: 250px;
+    overflow: hidden;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.thumbnail {
+    width: 100%;
+    height: 100%;
+}
+
+.src {
+    width: 100%;
+    overflow: hidden
 }
 
 
