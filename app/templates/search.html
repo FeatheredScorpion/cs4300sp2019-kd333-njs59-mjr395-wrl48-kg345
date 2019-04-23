@@ -40,6 +40,7 @@
             var new_url = "/search-results/?query=" + searchStr;
 
             function postQueryData(input) {
+                console.log(input);
                 $.ajax({
                     type: "POST",
                     url: new_url,

@@ -79,7 +79,7 @@
     display: inline;
     box-sizing: border-box;
     float: left;
-    height: 255px;
+    height: 254px;
     width: 100%;
     overflow: hidden;
 }
@@ -121,15 +121,16 @@
     width: 60%;
     float: right;
     padding-left: 20px;
+    overflow: auto;
 }
 
 .ingredients {
     width: 40%;
     float: left;
-    text-overflow: fade;
+    overflow: auto;
+    max-height: 100%;
 }
 
 #ingredients {
-    overflow: auto;
     text-transform: capitalize;
 }
