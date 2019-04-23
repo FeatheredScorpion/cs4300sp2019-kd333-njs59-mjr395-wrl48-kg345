@@ -9,108 +9,62 @@
 </head>
 <body>
 <div class="topcorner">
-    <p>Project Name: ROCKTAILS</p>
-    <p>Students:</p>
+    <div>Project Name: ROCKTAILS</div>
+    <div>Students:</div>
     <li>Kerri Diamond: kd333</li>
     <li>Kaitlin Green: kg345</li>
     <li>William Lin: wrl48</li>
     <li>Megan Rochlin: mjr395</li>
     <li>Nathaniel Schickler: njs59</li>
 </div>
-<form class="form-inline global-search">
-    <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
+<a href="/">
+    <h1 id="logo">
         ROCKTAILS
     </h1>
-
-    <br><br>
-
+</a>
+<br><br>
+<form id="query-form" class="form-inline global-search" onsubmit="return submitQuery(null)">
     <div class="form-group">
-        <input id="tags" type="text" name="search" class="form-control" placeholder="Occasion">
-        <input id="tags" type="text" name="ingredients" class="form-control" placeholder="Ingredients">
+        <label for="tags">
+            <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion">
+            <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="Ingredients">
+        </label>
     </div>
-    <button type="submit" class="btn btn-primary">
-        Go
-    </button>
-    {% if data %}
-        <script style="display: none">
-            const url = new URL(window.location);
-            let searchStr = url.search;
-            searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
-            console.log(searchStr);
-            var new_url = "/search-results/?query=" + searchStr;
-
-            function postQueryData(input) {
-                console.log(input);
-                $.ajax({
-                    type: "POST",
-                    url: new_url,
-                    data: {param: input},
-                    async: false,
-                    success: callbackFunc
-                });
-            }
-
-            function callbackFunc(response) {
-                // do something with the response
-                document.addEventListener("DOMContentLoaded", function () {
-                        JSON.parse(response).forEach(function (d) {
-                            const element = document.querySelector("div[data-type='template']").cloneNode(true);
-
-                            let ingredientsUl = element.querySelector("#ingredients");
-                            for (let i = 0; i < d.ingredients.length; i++) {
-                                let item = document.createElement('li');
-                                item.appendChild(document.createTextNode(d.ingredients[i]));
-                                ingredientsUl.appendChild(item);
-                            }
-
-                            element.querySelector("h3.title").textContent = d.name;
-                            element.querySelector("#desc").textContent = d.description;
-                            // element.querySelector("#ingredients").textContent = d.ingredients.toString();
-                            element.querySelector("img.src").src = d.src;
-                            element.style.display = "";
-                            document.getElementById("drink-output").appendChild(element);
-                        })
-                    }
-                )
-            }
-
-            postQueryData('data');
-        </script>
-    {% endif %}
+    <input type="submit" class="btn btn-primary" value="Go">
 </form>
 
 <div class="container-fluid">
     <div id="drink-output" class="container-fluid">
-        <!-- template -->
-        <div style="display: none;" data-type="template" class="row">
-            <div id="drink-id">
-                <div id="info-container">
-                    <div class="title align-items-center">
-                        <h3 class="title">
-                        </h3>
+    </div>
+    <!-- template, results go in drink-output -->
+    <div style="display: none;" data-type="template" class="row">
+        <div id="drink-id">
+            <div id="info-container">
+                <div class="title align-items-center">
+                    <h3 class="title">
+                    </h3>
+                </div>
+                <div class="align-items-start">
+                    <div id="left-pane" class="info-col">
+                        <div class="desc">
+                            <h4>Description</h4>
+                            <p id="desc"></p>
+                            <br>
+                        </div>
+                        <div class="ingredients">
+                            <h4>Ingredients</h4>
+                            <ul id="ingredients"></ul>
+                        </div>
                     </div>
-                    <div class="align-items-start">
-                        <div id="left-pane" class="info-col">
-                            <div class="desc">
-                                <h4>Description</h4>
-                                <p id="desc"></p>
-                                <br>
-                            </div>
-                            <div class="ingredients">
-                                <h4>Ingredients</h4>
-                                <ul id="ingredients"></ul>
-                            </div>
-                        </div>
-                        <div id="right-pane" class="info-col">
+                    <div id="right-pane" class="info-col">
 
-                            <div class="thumb">
-                                <img src='../static/img/drinks_noimg_1280.png' alt="No Image"
-                                     onerror="if (this.src !== 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
-                                     class="src">
-                            </div>
-
-                            <div id="see-more" class="btn btn-link">See more...</div>
+                        <div class="thumb">
+                            <img src='../static/img/drinks_noimg_1280.png' alt="No Image"
+                                 onerror="if (this.src !== 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
+                                 class="src">
                         </div>
+
+                        <div id="see-more" class="btn btn-link">See more...</div>
                     </div>
                 </div>
             </div>
@@ -121,35 +75,96 @@
     var suggestions = [];
     var ingredients = [];
 
-    function postData(input) {
-        console.log(input);
-        $.ajax({
+    function submitQuery(searchStr = null) {
+        let searchUrl = '';
+
+        if (searchStr) {
+            searchUrl = searchStr;
+        } else {
+            const inputsSearch = $('#search-form').val();
+            const inputsIngredients = $('#ingredients-form').val();
+
+            console.log(inputsSearch, inputsIngredients);
+
+            searchUrl = "?query=" + inputsSearch;
+            searchUrl += "&ingredients=" + inputsIngredients;
+            searchUrl = searchUrl.toLowerCase();
+        }
+
+        const url = new URL(window.location);
+        const urlBase = url.origin;
+
+        const queryPath = "/search-results/";
+
+        console.log(searchUrl);
+        const newUrl = urlBase + searchUrl;
+
+        postData('data', resultCallbackFunc, queryPath + searchUrl);
+
+        if (window.history.pushState) {
+            //prevents browser from storing history with each change:
+            window.history.pushState({"id": newUrl}, 'Results', newUrl);
+        }
+
+        return false;
+    }
+
+    function postData(input, callback, url) {
+        const queryObj = {
             type: "POST",
-            url: input,
+            url: url,
             data: {param: input},
-            async: false,
-            success: callbackJSONFunc
-        });
+            async: true,
+            success: callback
+        };
+        console.log(queryObj);
+        $.ajax(queryObj);
     }
 
     function callbackJSONFunc(response) {
-        // do something with the response
+        // set suggestions
         suggestions = JSON.parse(response);
     }
 
-    $(function () {
-        postData("/good-types/");
-        var availableTags = suggestions;
+    function resultCallbackFunc(response) {
+        //then parse and display the response
+        const parsed = JSON.parse(response);
+        console.log(parsed);
 
-        function split(val) {
-            return val.split(/,\s*/);
+        $('#drink-output').empty();
+
+        parsed.forEach(function (d) {
+            const element = document.querySelector("div[data-type='template']").cloneNode(true);
+
+            let ingredientsUl = element.querySelector("#ingredients");
+            for (let i = 0; i < d.ingredients.length; i++) {
+                let item = document.createElement('li');
+                item.appendChild(document.createTextNode(d.ingredients[i]));
+                ingredientsUl.appendChild(item);
+            }
+
+            element.querySelector("h3.title").textContent = d.name;
+            element.querySelector("#desc").textContent = d.description;
+            // element.querySelector("#ingredients").textContent = d.ingredients.toString();
+            element.querySelector("img.src").src = d.src;
+            element.style.display = "";
+            document.getElementById("drink-output").appendChild(element);
+        });
+
+    }
+
+    $(document).ready(function () {
+        postData("", callbackJSONFunc, '/good-types/');
+
+        // if page has search string on load, use that
+        const url = new URL(window.location);
+        const searchStr = url.search;
+        if (searchStr.length > 0) {
+            submitQuery(searchStr);
         }
 
-        function extractLast(term) {
-            return split(term).pop();
-        }
 
-        $("#tags")
+        $("#search-form")
         // don't navigate away from the field on tab when selecting an item
             .on("keydown", function (event) {
                 if (event.keyCode === $.ui.keyCode.TAB &&
@@ -162,14 +177,16 @@
                 source: function (request, response) {
                     // delegate back to autocomplete, but extract the last term
                     response($.ui.autocomplete.filter(
-                        availableTags, extractLast(request.term)));
+                        suggestions,
+                        request.term.split(/,\s*/).pop()
+                    ));
                 },
                 focus: function () {
                     // prevent value inserted on focus
                     return false;
                 },
                 select: function (event, ui) {
-                    var terms = split(this.value);
+                    var terms = this.value.split(/,\s*/);
                     // remove the current input
                     terms.pop();
                     // add the selected item
