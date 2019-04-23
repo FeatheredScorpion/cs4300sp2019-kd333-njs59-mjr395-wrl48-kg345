@@ -36,10 +36,10 @@
             const url = new URL(window.location);
             let searchStr = url.search;
             searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
-            console.log(searchStr)
+            console.log(searchStr);
             var new_url = "/search-results/?query=" + searchStr;
 
-            function postData(input) {
+            function postQueryData(input) {
                 $.ajax({
                     type: "POST",
                     url: new_url,
@@ -73,12 +73,11 @@
                 )
             }
 
-            postData('data');
+            postQueryData('data');
         </script>
     {% endif %}
 </form>
 
-</div>
 <div class="container-fluid">
     <div id="drink-output" class="container-fluid">
         <!-- template -->
@@ -118,10 +117,11 @@
     </div>
 </div>
 <script>
-    suggestions = [];
-    ingredients = [];
+    var suggestions = [];
+    var ingredients = [];
 
     function postData(input) {
+        console.log(input);
         $.ajax({
             type: "POST",
             url: input,
