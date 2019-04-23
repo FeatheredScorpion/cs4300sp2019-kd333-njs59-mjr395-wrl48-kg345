@@ -1,200 +1,185 @@
-<html>
-    <head>
-        <Title>Rocktails</Title>
-        <link rel="stylesheet" href="../static/styles/bootstrap.min.css">
-        <link rel="stylesheet" href="../static/styles/main.css">
-        <link rel="shortcut icon" type="image/png" href="../static/img/favicon-1.png"/>
-    </head>
-    <body>
-    <div class="topcorner">
-        <p>Project Name: ROCKTAILS</p>
-        <p>Student Name: Kerri Diamond: kd333, Kaitlin Green: kg345, William Lin: wrl48, Megan Rochlin: mjr395, Nathaniel Schickler: njs59</p>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../static/styles/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/styles/main.css">
+    <link rel="shortcut icon" type="image/png" href="../static/img/favicon-1.png"/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+<div class="topcorner">
+    <p>Project Name: ROCKTAILS</p>
+    <p>Students:</p>
+    <li>Kerri Diamond: kd333</li>
+    <li>Kaitlin Green: kg345</li>
+    <li>William Lin: wrl48</li>
+    <li>Megan Rochlin: mjr395</li>
+    <li>Nathaniel Schickler: njs59</li>
+</div>
+<form class="form-inline global-search">
+    <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
+        ROCKTAILS
+    </h1>
+
+    <br><br>
+
+    <div class="form-group">
+        <input id="tags" type="text" name="search" class="form-control" placeholder="Occasion">
+        <input id="tags" type="text" name="ingredients" class="form-control" placeholder="Ingredients">
     </div>
-    <div class="user_topcorner">
-        <a>USER</a>
-    </div>
-    <form class="form-inline global-search">
-        <h1 style="font-size: 64px;font-weight:500; font-family:Quicksand, sans-serif; text-shadow: 2px 2px 2px #000000; color: #ffffff">
-            ROCKTAILS
-        </h1>
+    <button type="submit" class="btn btn-primary">
+        Go
+    </button>
+    {% if data %}
+        <script style="display: none">
+            const url = new URL(window.location);
+            let searchStr = url.search;
+            searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
+            console.log(searchStr)
+            var new_url = "/search-results/?query=" + searchStr;
 
-        <br><br>
-        <div class="form-group">
-            <input id="tags" type="text" name="search" class="form-control" placeholder="Occasion">
-            <input id="tags" type="text" name = "ingredients" class="form-control" placeholder="Ingredients">
-        </div>
-        <button type="submit" class="btn btn-info">
-            Go
-        </button>
-    </form>
+            function postData(input) {
+                $.ajax({
+                    type: "POST",
+                    url: new_url,
+                    data: {param: input},
+                    async: false,
+                    success: callbackFunc
+                });
+            }
 
-    <form class="form-inline global-search">
-        {% if data %}
-            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-            <script style="display: none">
-                const url = new URL(window.location);
-                let searchStr = url.search;
-                searchStr = searchStr.substr(searchStr.indexOf('=') + 1, searchStr.length).toLowerCase();
-                console.log(searchStr)
-                var new_url = "/search-results/?query=" + searchStr;
-                function postData(input) {
-                    $.ajax({
-                        type: "POST",
-                        url: new_url,
-                        data: { param: input },
-                        async: false,
-                        success: callbackFunc
-                    });
-                }
-
-                function callbackFunc(response) {
-                    // do something with the response
-                    document.addEventListener("DOMContentLoaded", function() { 
+            function callbackFunc(response) {
+                // do something with the response
+                document.addEventListener("DOMContentLoaded", function () {
                         JSON.parse(response).forEach(function (d) {
-                         {
-                            var element = document.querySelector("div[data-type='template']").cloneNode(true);
-                            element.querySelector("div.title").textContent = d.name;
-                            element.querySelector("div#desc").textContent = d.description;
-                            element.querySelector("p#ingredients").textContent = d.ingredients.toString();
+                            const element = document.querySelector("div[data-type='template']").cloneNode(true);
+
+                            let ingredientsUl = element.querySelector("#ingredients");
+                            for (let i = 0; i < d.ingredients.length; i++) {
+                                let item = document.createElement('li');
+                                item.appendChild(document.createTextNode(d.ingredients[i]));
+                                ingredientsUl.appendChild(item);
+                            }
+
+                            element.querySelector("h3.title").textContent = d.name;
+                            element.querySelector("#desc").textContent = d.description;
+                            // element.querySelector("#ingredients").textContent = d.ingredients.toString();
                             element.querySelector("img.src").src = d.src;
-                            element.style.display = "inline";
+                            element.style.display = "";
                             document.getElementById("drink-output").appendChild(element);
-                        }
                         })
-                     }
-                )}      
+                    }
+                )
+            }
+
             postData('data');
-            </script>
-        {% endif %}
-    </form>
-    <div id="drink-output" style="width:60%; margin: auto; padding-bottom: 10px;">
-    </div>
-    <div class="row">
+        </script>
+    {% endif %}
+</form>
+
+</div>
+<div class="container-fluid">
+    <div id="drink-output" class="container-fluid">
         <!-- template -->
-        <div style="display: none;" data-type="template" id="drink-id" class="cocktail">
-            <div class="col-sm-6 col-md-4" style="width: 500px; height: 500px; padding: 10px;">
-                <div class="thumbnail" style="width: 100%; height:100%">
-                    <div style="height: 250px; overflow: hidden; border-width: 2px; border-style: solid">
-                        <img src = '../static/img/drinks_noimg_1280.png' alt="No Image"
-                         onerror="if (this.src != 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
-                             style="width: 100%;  overflow: hidden" class="src">
+        <div style="display: none;" data-type="template" class="row">
+            <div id="drink-id">
+                <div id="info-container">
+                    <div class="title align-items-center">
+                        <h3 class="title">
+                        </h3>
                     </div>
-                    <h3 class="">
-                        <div class="title">Thumbnail label</div>
-                    </h3>
-                    <p>Description:</p>
-                    <div id="desc" class="desc" style="overflow: auto;">
+                    <div class="align-items-start">
+                        <div id="left-pane" class="info-col">
+                            <div class="desc">
+                                <h4>Description</h4>
+                                <p id="desc"></p>
+                                <br>
+                            </div>
+                            <div class="ingredients">
+                                <h4>Ingredients</h4>
+                                <ul id="ingredients"></ul>
+                            </div>
+                        </div>
+                        <div id="right-pane" class="info-col">
+
+                            <div class="thumb">
+                                <img src='../static/img/drinks_noimg_1280.png' alt="No Image"
+                                     onerror="if (this.src !== 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
+                                     class="src">
+                            </div>
+
+                            <div id="see-more" class="btn btn-link">See more...</div>
+                        </div>
                     </div>
-                    <br>
-                    <p>Ingredients:</p>
-                    <p id="ingredients"></p>
                 </div>
             </div>
         </div>
     </div>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script>
-        suggestions = []
-        ingredients = []
+</div>
+<script>
+    suggestions = [];
+    ingredients = [];
 
-        function postData(input) {
-            $.ajax({
-                type: "POST",
-                url: input,
-                data: {param: input},
-                async: false,
-                success: callbackFunc
-            });
-        }
-                function callbackFunc(response) {
-                    // do something with the response
-                    suggestions = JSON.parse(response);
-                }
-    $(function() {
-        postData("/good-types/")
+    function postData(input) {
+        $.ajax({
+            type: "POST",
+            url: input,
+            data: {param: input},
+            async: false,
+            success: callbackJSONFunc
+        });
+    }
+
+    function callbackJSONFunc(response) {
+        // do something with the response
+        suggestions = JSON.parse(response);
+    }
+
+    $(function () {
+        postData("/good-types/");
         var availableTags = suggestions;
-        function split( val ) {
-          return val.split( /,\s*/ );
-        }
-        function extractLast( term ) {
-          return split( term ).pop();
-        }
-     
-    $( "#tags" )
-      // don't navigate away from the field on tab when selecting an item
-      .on( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.TAB &&
-            $( this ).autocomplete( "instance" ).menu.active ) {
-          event.preventDefault();
-        }
-      })
-      .autocomplete({
-        minLength: 0,
-        source: function( request, response ) {
-          // delegate back to autocomplete, but extract the last term
-          response( $.ui.autocomplete.filter(
-            availableTags, extractLast( request.term ) ) );
-        },
-        focus: function() {
-          // prevent value inserted on focus
-          return false;
-        },
-        select: function( event, ui ) {
-          var terms = split( this.value );
-          // remove the current input
-          terms.pop();
-          // add the selected item
-          terms.push( ui.item.value );
-          // add placeholder to get the comma-and-space at the end
-          terms.push( "" );
-          this.value = terms.join( ", " );
-          return false;
-        }
-      });
-  } );
 
-            function split(val) {
-                return val.split(/,\s*/);
-            }
+        function split(val) {
+            return val.split(/,\s*/);
+        }
 
-            function extractLast(term) {
-                return split(term).pop();
-            }
+        function extractLast(term) {
+            return split(term).pop();
+        }
 
-            $("#tags")
-            // don't navigate away from the field on tab when selecting an item
-                .on("keydown", function (event) {
-                    if (event.keyCode === $.ui.keyCode.TAB &&
-                        $(this).autocomplete("instance").menu.active) {
-                        event.preventDefault();
-                    }
-                })
-                .autocomplete({
-                    minLength: 0,
-                    source: function (request, response) {
-                        // delegate back to autocomplete, but extract the last term
-                        response($.ui.autocomplete.filter(
-                            availableTags, extractLast(request.term)));
-                    },
-                    focus: function () {
-                        // prevent value inserted on focus
-                        return false;
-                    },
-                    select: function (event, ui) {
-                        var terms = split(this.value);
-                        // remove the current input
-                        terms.pop();
-                        // add the selected item
-                        terms.push(ui.item.value);
-                        // add placeholder to get the comma-and-space at the end
-                        terms.push("");
-                        this.value = terms.join(", ");
-                        return false;
-                    }
-                });
-        </script>
-    </body>
+        $("#tags")
+        // don't navigate away from the field on tab when selecting an item
+            .on("keydown", function (event) {
+                if (event.keyCode === $.ui.keyCode.TAB &&
+                    $(this).autocomplete("instance").menu.active) {
+                    event.preventDefault();
+                }
+            })
+            .autocomplete({
+                minLength: 0,
+                source: function (request, response) {
+                    // delegate back to autocomplete, but extract the last term
+                    response($.ui.autocomplete.filter(
+                        availableTags, extractLast(request.term)));
+                },
+                focus: function () {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function (event, ui) {
+                    var terms = split(this.value);
+                    // remove the current input
+                    terms.pop();
+                    // add the selected item
+                    terms.push(ui.item.value);
+                    // add placeholder to get the comma-and-space at the end
+                    terms.push("");
+                    this.value = terms.join(", ");
+                    return false;
+                }
+            });
+    });
+</script>
+</body>
 </html>

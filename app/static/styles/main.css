@@ -35,46 +35,101 @@
 
 .topcorner {
     position: absolute;
-    top: 2%;
-    float: left;
-}
-
-.user_topcorner {
-    position: absolute;
-    top: 2%;
-    right: 2%;
-}
-
-.btn {
-    background-color: #2aa5a5;
-    border: none
+    top: 1%;
+    right: 1%;
 }
 
 .step-links a {
     color: #4285F4;
 }
 
+#drink-output {
+    width: 80vw;
+    margin: 0 auto;
+}
+
 #drink-id {
     transition: box-shadow .3s;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    background: #fff;
-    float: left;
-    padding: 10px;
+    background: #f9f9f9;
     margin: 10px;
+    height: 300px;
     box-shadow: 0 5px 10px rgba(33, 33, 33, .2);
-
 }
 
 #drink-id:hover {
     box-shadow: 0 10px 25px rgba(33, 33, 33, .2);
-
+    background: #ffffff;
+    transition: 150ms;
 }
 
-.cocktail {
+.title {
+    font-size: 24px;
+    margin: 0;
+    padding: 5px;
+    background: #91cde9;
+}
+
+#info-container {
+    width: 100%;
+    height: 90%;
+}
+
+.info-col {
+    position: relative;
+    display: inline;
+    box-sizing: border-box;
+    float: left;
+    height: 255px;
+    width: 100%;
+    overflow: hidden;
+}
+
+#left-pane {
+    width: 80%;
+    padding-left: 12px;
+    padding-right: 20px;
+    text-overflow: ellipsis;
+    font-size: medium;
+}
+
+#right-pane {
+    float: right;
+    width: 20%;
+    background: #c2e1f5;
+}
+
+.info-col img {
+    object-fit: contain;
     margin: auto;
+    display: block;
+    max-width:120%;
+    max-height:100%;
+    min-height: 50%;
+    min-width: 80%;
 }
 
+#see-more {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    z-index: 9999;
+    border-radius: 0;
+}
 
+.desc {
+    width: 60%;
+    float: right;
+    padding-left: 20px;
+}
 
+.ingredients {
+    width: 40%;
+    float: left;
+    text-overflow: fade;
+}
 
+#ingredients {
+    overflow: auto;
+    text-transform: capitalize;
+}
