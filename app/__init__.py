@@ -64,8 +64,8 @@ def compute_idf(inv_idx, n_docs, min_df=10, max_df_ratio=0.95):
 	result = {}
 	for word in inv_idx:
 	    DF = len(inv_idx[word])
-	    if word == '.':
-	        print(DF)
+	    # if word == '.':
+	    #     print(DF)
 	    if DF >= min_df:
 	        IDF = math.log((n_docs / (1 + DF)), 2)
 	        if DF/n_docs <= max_df_ratio:
@@ -143,7 +143,7 @@ def search():
 		drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
 		good_result = False
 		for ingredient in ingredients:
-			if ingredient not in drink_ingredients:
+			if ingredient in drink_ingredients:
 				good_result = True
 		if good_result:
 			drinks_w_ingredients[drink["name"]] = 1
@@ -155,7 +155,7 @@ def search():
 	words = {}
 	doc_index = 0
 	for drink in data["drinks"]:
-		print(drink["reviews"])
+		#print(drink["reviews"])
 		n_docs.append(drink["name"])
 		tokens = tokenize(drink["description"]) + tokenize(drink["name"])
 		for review in drink["reviews"]:
@@ -180,6 +180,8 @@ def search():
 	doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
 	results = index_search(query, inverted_index, idf, doc_norms)
 	results = [n_docs[x[1]] for x in results]
+	results = [x for x in results if x in drinks_w_ingredients]
+	results = results[:5]
 	#print(results)
 	output = [x for x in data["drinks"] if x["name"] in results and x["name"] in drinks_w_ingredients]
 	return json.dumps(output)
