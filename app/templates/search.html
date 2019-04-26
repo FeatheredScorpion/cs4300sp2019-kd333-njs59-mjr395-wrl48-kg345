@@ -24,10 +24,25 @@
 <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery(null)">
     <div class="form-group">
         <label for="tags">
-            <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion">
-            <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="Ingredients">
+            <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'I have a birthday party')">
+            <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
         </label>
+        <br><br>
+        <div id="list3" class="dropdown-check-list" tabindex="100">
+            <span class="anchor">Filter with Flavor Profiles</span>
+            <ul class="items">
+                <li><input id="flavorProfAny" name="flavorProfile" type="checkbox" value="any"/><label for="flavorProfAny">Any</label></li>
+                <li><input id="flavorProfFrozen" name="flavorProfile" type="checkbox" value="frozen"/><label for="flavorProfFrozen">Frozen</label></li>
+                <li><input id="flavorProfFruity" name="flavorProfile" type="checkbox" value="fruity"/><label for="flavorProfFruity">Fruity</label></li>
+                <li><input id="flavorProfHot" name="flavorProfile" type="checkbox" value="hot"/><label for="flavorProfHot">Hot</label></li>
+                <li><input id="flavorProfSavory" name="flavorProfile" type="checkbox" value="savory"/><label for="flavorProfSavory">Savory</label></li>
+                <li><input id="flavorProfSour" name="flavorProfile" type="checkbox" value="sour"/><label for="flavorProfSour">Sour</label></li>
+                <li><input id="flavorProfSpicy" name="flavorProfile" type="checkbox" value="spicy"/><label for="flavorProfSpicy">Spicy</label></li>
+                <li><input id="flavorProfSweet" name="flavorProfile" type="checkbox" value="sweet"/><label for="flavorProfSweet">Sweet</label></li>
+            </ul>
+        </div>
     </div>
+    <br><br>
     <input type="submit" class="btn btn-primary" value="Go">
 </form>
 
@@ -67,6 +82,24 @@
         </div>
     </div>
 </div>
+<!--Script for dropdown multi select-->
+<script type="text/javascript">
+    jQuery(function ($) {
+        var checkList = $('.dropdown-check-list');
+        checkList.on('click', 'span.anchor', function(event){
+            var element = $(this).parent();
+
+            if ( element.hasClass('visible') )
+            {
+                element.removeClass('visible');
+            }
+            else
+            {
+                element.addClass('visible');
+            }
+        });
+    });
+</script>
 <script>
     var suggestions = [];
     var ingredients = [];
