@@ -24,12 +24,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # DB
 db = SQLAlchemy(app)
 
-# inverted index
-inverted_index = {}
-# good types
-good_words = []
-reverse_index_good_words = {}
-
 # Import + Register Blueprints
 from app.accounts import accounts as accounts
 
@@ -41,9 +35,14 @@ app.register_blueprint(irsystem)
 # Initialize app w/SocketIO
 socketio.init_app(app)
 
-#treebank tokenizer for boolean search
+# treebank tokenizer for boolean search
 treebank_tokenizer = TreebankWordTokenizer()
 
+# inverted index
+inverted_index = {}
+# good types
+good_types = []
+reverse_index_good_words = {}
 
 # HTTP error handling
 @app.errorhandler(404)
@@ -58,180 +57,194 @@ def tokenize(text):
     Returns: List
     """
     return [x for x in re.findall(r"[a-z]*", text.lower()) if x != ""]
-    
-#compute idf
-def compute_idf(inv_idx, n_docs, min_df=10, max_df_ratio=0.95):
-	result = {}
-	for word in inv_idx:
-	    DF = len(inv_idx[word])
-	    # if word == '.':
-	    #     print(DF)
-	    if DF >= min_df:
-	        IDF = math.log((n_docs / (1 + DF)), 2)
-	        if DF/n_docs <= max_df_ratio:
-	            result[word] = IDF
-	return result
 
-#compute norms
+
+# compute idf
+def compute_idf(inv_idx, n_docs, min_df=10, max_df_ratio=0.95):
+    result = {}
+    for word in inv_idx:
+        DF = len(inv_idx[word])
+        # if word == '.':
+        #     print(DF)
+        if DF >= min_df:
+            IDF = math.log((n_docs / (1 + DF)), 2)
+            if DF / n_docs <= max_df_ratio:
+                result[word] = IDF
+    return result
+
+
+# compute norms
 def compute_doc_norms(index, idf, n_docs):
     result = np.zeros(n_docs)
-    #print(n_docs)
+    # print(n_docs)
     for word in index:
         for doc in index[word]:
             if word in idf:
-            	result[doc] += idf[word] ** 2
+                result[doc] += idf[word] ** 2
     result = np.sqrt(result)
     return result
 
+
 def index_search(query, index, idf, doc_norms):
-	#print(idf)
-	dic = {}
-	tokens = tokenize(query.lower())
-	for token in tokens:
-	    if token in index:
-	        for (doc_id) in index[token]:
-	            if doc_id not in dic:
-	            	idf_token = 0
-	            	if token in idf:
-	            		idf_token = idf[token]
-	            	dic[doc_id] = tokens.count(token) * idf_token * idf_token
-	            else :
-	                dic[doc_id] += tokens.count(token)
-	                
-	#compute query norm
-	q = 0
-	for word in index:
-	    if word in tokens:
-	       	if token in idf:
-	       		idf_token = idf[token]
-	        q += ((tokens.count(word)) * idf_token ** 2)
-	q = q ** .5
+    # print(idf)
+    dic = {}
+    tokens = tokenize(query.lower())
+    for token in tokens:
+        if token in index:
+            for (doc_id) in index[token]:
+                if doc_id not in dic:
+                    idf_token = 0
+                    if token in idf:
+                        idf_token = idf[token]
+                    dic[doc_id] = tokens.count(token) * idf_token * idf_token
+                else:
+                    dic[doc_id] += tokens.count(token)
 
-	result = []
-	for doc in dic:
-	    doc_norm = doc_norms[doc]
-	    score = dic[doc] / (doc_norm * q)
-	    result.append((score, doc))
+    # compute query norm
+    q = 0
+    for word in index:
+        if word in tokens:
+            if token in idf:
+                idf_token = idf[token]
+            q += ((tokens.count(word)) * idf_token ** 2)
+    q = q ** .5
 
-	result.sort(key = lambda x: x[0], reverse = True)
-	return result
+    result = []
+    for doc in dic:
+        doc_norm = doc_norms[doc]
+        score = dic[doc] / (doc_norm * q)
+        result.append((score, doc))
+
+    result.sort(key=lambda x: x[0], reverse=True)
+    return result
 
 
-
-#returns a list of drinks that match the paramter
+# returns a list of drinks that match the paramter
 @app.route("/search-results/", methods=['GET', 'POST'])
 def search():
-	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-	json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
-	data = json.load(open(json_url))
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    data = json.load(open(json_url))
 
-	#getting the query document
-	print(request)
-	query = request.args.get('query')
-	ingredients = tokenize(request.args.get('ingredients'))
-	print(ingredients)
-	print(query)
+    # getting the query document
+    print(request)
+    query = request.args.get('query')
+    ingredients = tokenize(request.args.get('ingredients'))
+    print(ingredients)
+    print(query)
 
-	drinks_w_ingredients = {}
-	if len(ingredients) == 0:
-		for drink in data["drinks"]:
-			drinks_w_ingredients[drink["name"]] = 1
-	for drink in data["drinks"]:
-		drink_ingredients = []
-		for i in drink["ingredients"]:
-			drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
-		drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
-		good_result = False
-		for ingredient in ingredients:
-			if ingredient in drink_ingredients:
-				good_result = True
-		if good_result:
-			drinks_w_ingredients[drink["name"]] = 1
+    drinks_w_ingredients = {}
+    if len(ingredients) == 0:
+        for drink in data["drinks"]:
+            drinks_w_ingredients[drink["name"]] = 1
+    for drink in data["drinks"]:
+        drink_ingredients = []
+        for i in drink["ingredients"]:
+            drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
+        drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
+        good_result = False
+        for ingredient in ingredients:
+            if ingredient in drink_ingredients:
+                good_result = True
+        if good_result:
+            drinks_w_ingredients[drink["name"]] = 1
 
-	n_docs = []
-	#construct inverted index
-	inverted_index = {}
-	reverse_index_good_words = {}
-	words = {}
-	doc_index = 0
-	for drink in data["drinks"]:
-		#print(drink["reviews"])
-		n_docs.append(drink["name"])
-		tokens = tokenize(drink["description"]) + tokenize(drink["name"])
-		for review in drink["reviews"]:
-			tokens = tokens + tokenize(review["body"])
-		for token in tokens:
-			if token not in words:
-				words[token] = 0
-			words[token] += 1
-			if token not in inverted_index:
-				inverted_index[token] = []
-			inverted_index[token].append(doc_index) #make a tuple
-		doc_index += 1
-	good_words = []
-	index = 0
-	for word in words:
-	    if words[word] > 1:
-	        good_words.append(word)
-	        reverse_index_good_words[word] = index 
-	        index += 1
-	#compute idf
-	idf = compute_idf(inverted_index, len(good_words))
-	doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
-	results = index_search(query, inverted_index, idf, doc_norms)
-	results = [n_docs[x[1]] for x in results]
-	results = [x for x in results if x in drinks_w_ingredients]
-	results = results[:5]
-	#print(results)
-	output = [x for x in data["drinks"] if x["name"] in results and x["name"] in drinks_w_ingredients]
-	return json.dumps(output)
+    n_docs = []
+    # construct inverted index
+    global inverted_index
+    inverted_index = {}
+    global reverse_index_good_words
+    reverse_index_good_words= {}
+    words = {}
+    doc_index = 0
+    for drink in data["drinks"]:
+        # print(drink["reviews"])
+        n_docs.append(drink["name"])
+        tokens = tokenize(drink["description"]) + tokenize(drink["name"])
+        for review in drink["reviews"]:
+            tokens = tokens + tokenize(review["body"])
+        for token in tokens:
+            if token not in words:
+                words[token] = 0
+            words[token] += 1
+            if token not in inverted_index:
+                inverted_index[token] = []
+            inverted_index[token].append(doc_index)  # make a tuple
+        doc_index += 1
+    good_words = []
+    index = 0
+    for word in words:
+        if words[word] > 1:
+            good_words.append(word)
+            reverse_index_good_words[word] = index
+            index += 1
+    # compute idf
+    idf = compute_idf(inverted_index, len(good_words))
+    doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
+    results = index_search(query, inverted_index, idf, doc_norms)
+    results = [n_docs[x[1]] for x in results]
+    results = [x for x in results if x in drinks_w_ingredients]
+    results = results[:5]
+    # print(results)
+    output = [x for x in data["drinks"] if x["name"] in results and x["name"] in drinks_w_ingredients]
+    return json.dumps(output)
+
+
 # returns an array of good types
 @app.route("/good-types/", methods=['GET', 'POST'])
 def return_good_types():
-	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-	json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
-	data = json.load(open(json_url))
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    data = json.load(open(json_url))
 
-	#good types
-	good_words = []
-	words = {}
-	for drink in data["drinks"]:
-		tokens = tokenize(drink["description"])
-		for review in drink["reviews"]:
-			tokens = tokens + tokenize(review["body"])
-		if tokens is not None:
-			for token in tokens:
-				if token not in words:
-					words[token] = 0
-				words[token] += 1
-	good_words = []
-	for word in words:
-	    if words[word] > 1:
-	        good_words.append(word)
-	return json.dumps(good_words)
+    # good types
+    words = {}
+    for drink in data["drinks"]:
+        tokens = tokenize(drink["description"])
+        for review in drink["reviews"]:
+            tokens = tokens + tokenize(review["body"])
+        if tokens is not None:
+            for token in tokens:
+                if token not in words:
+                    words[token] = 0
+                words[token] += 1
+    global good_types
+    good_types = []
+    for word in words:
+        if words[word] > 1:
+            good_types.append(word)
+    return json.dumps(good_types)
 
-	# returns an array of good types from ingredients
+@app.route("/autocomplete-types/", methods=['GET', 'POST'])
+def return_autocomplete_types():
+    global good_types
+    if (len(good_types) < 100):
+        return_good_types()
+
+
+
+# returns an array of good types from ingredients
 @app.route("/good-ingredients/", methods=['GET', 'POST'])
 def return_ingredients():
-	SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-	json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
-	data = json.load(open(json_url))
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    data = json.load(open(json_url))
 
-	#good types
-	good_words = []
-	words = {}
-	for drink in data["drinks"]:
-		tokens = tokenize(drink["ingredients"])
-		if tokens is not None:
-			for token in tokens:
-				if token not in words:
-					words[token] = 0
-				words[token] += 1
-	good_words = []
-	for word in words:
-	    if words[word] > 1:
-	        good_words.append(word)
-	return json.dumps(good_words)
+    # good types
+    good_words = []
+    words = {}
+    for drink in data["drinks"]:
+        tokens = tokenize(drink["ingredients"])
+        if tokens is not None:
+            for token in tokens:
+                if token not in words:
+                    words[token] = 0
+                words[token] += 1
+    good_words = []
+    for word in words:
+        if words[word] > 1:
+            good_words.append(word)
+    return json.dumps(good_words)
 
 # # returns a list of resulting elements that satisfies the boolean search
 # @app.route("/booleanSearch/", methods=['GET', 'POST'])
