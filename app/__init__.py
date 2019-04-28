@@ -125,7 +125,7 @@ def index_search(query, index, idf, doc_norms):
 @app.route("/search-results/", methods=['GET', 'POST'])
 def search():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
     # getting the query document
@@ -176,7 +176,7 @@ def search():
             drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
         for ingredient in drink_ingredients:
             if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.5, results[reverse_doc_index[drink_index]][1])
+                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.1, results[reverse_doc_index[drink_index]][1])
         drink_index += 1 
     results.sort(key = lambda x: x[0], reverse = True)
     print(results)
@@ -192,7 +192,7 @@ def search():
 @app.route("/good-types/", methods=['GET', 'POST'])
 def return_good_types():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
     # good types
@@ -225,7 +225,7 @@ def return_autocomplete_types():
 @app.route("/good-ingredients/", methods=['GET', 'POST'])
 def return_ingredients():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
     # good types
