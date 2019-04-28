@@ -112,10 +112,7 @@
         } else {
             const inputsSearch = $('#search-form').val();
             const inputsIngredients = $('#ingredients-form').val();
-
-            console.log(inputsSearch, inputsIngredients);
-
-            searchUrl = "?query=" + inputsSearch;
+            searchUrl = "?search=" + inputsSearch;
             searchUrl += "&ingredients=" + inputsIngredients;
             searchUrl = searchUrl.toLowerCase();
         }
@@ -143,7 +140,7 @@
             type: "POST",
             url: url,
             data: {param: input},
-            async: true,
+            async: false, //has to be false!
             success: callback
         };
         console.log(queryObj);
@@ -154,6 +151,8 @@
         // set suggestions
         suggestions = JSON.parse(response);
     }
+
+    
 
     function resultCallbackFunc(response) {
         //then parse and display the response
@@ -183,7 +182,8 @@
     }
 
     $(document).ready(function () {
-        postData("", callbackJSONFunc, '/good-types/');
+        postData("", callbackJSONFunc, '/good-ingredients/');
+        console.log(suggestions)
 
         // if page has search string on load, use that
         const url = new URL(window.location);
@@ -192,8 +192,7 @@
             submitQuery(searchStr);
         }
 
-
-        $("#search-form")
+        $("#ingredients-form")
         // don't navigate away from the field on tab when selecting an item
             .on("keydown", function (event) {
                 if (event.keyCode === $.ui.keyCode.TAB &&
@@ -227,6 +226,7 @@
                 }
             });
     });
+
 </script>
 </body>
 </html>
