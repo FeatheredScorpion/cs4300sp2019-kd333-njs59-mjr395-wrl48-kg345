@@ -2,6 +2,14 @@ body {
     background-color: #eee;
 }
 
+.navbar {
+    margin-bottom: 0px;
+}
+.navbar-fixed-top  {
+    top:-70px;
+    opacity:0;
+}
+
 #header {
     background: url("../img/nighthawks.jpg");
     background-position: center;
@@ -10,7 +18,7 @@ body {
     position: relative;
     min-width: 100%;
     max-width: 100%;
-    height: 350px;
+    height: 500px;
 }
 
 #header:before {
@@ -23,6 +31,20 @@ body {
     background: linear-gradient(to bottom, transparent, #eee);
     opacity: 0.5;
 }
+
+#formDiv {
+    position: relative;
+    padding-top: 325px;
+    display: block;
+    text-align: center;
+}
+
+#query-form {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 
 /*
 https://codepen.io/Dreamdealer/pen/yEmwd
@@ -39,7 +61,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     text-shadow: steelblue 3px 2px 0;
     position: absolute;
     z-index: 999;
-    top: 70%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     margin: 0;
@@ -81,7 +103,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     }
 
     .global-search .form-control {
-        width: 500px;
+        width: 300px;
     }
 
     .global-search * {
@@ -92,7 +114,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
 
 .topcorner {
     position: absolute;
-    top: 1%;
+    top: 10%;
     right: 1%;
     font-size: smaller;
     height: 0;
