@@ -12,7 +12,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">Rocktails</a>
+            <a class="navbar-brand" href="/">Rocktails</a>
             <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery2(null)">
                 <div class="form-group">
                     <label for="tags">
@@ -103,7 +103,7 @@
         });
         function mainNav() {
             var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
-            if (top > 40) $('.navbar-fixed-top').stop().animate({
+            if (top > 350) $('.navbar-fixed-top').stop().animate({
                 "opacity": '1',
                 "top": '0'
             });

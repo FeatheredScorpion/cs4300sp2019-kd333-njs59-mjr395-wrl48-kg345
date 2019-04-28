@@ -104,6 +104,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
 
     .global-search .form-control {
         width: 300px;
+        border-radius: 20px;
     }
 
     .global-search * {
