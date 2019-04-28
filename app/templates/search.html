@@ -57,33 +57,37 @@
     <div style="display: none;" data-type="template" class="row">
         <div id="drink-id">
             <div id="info-container">
-                <div class="title align-items-center">
-                    <h3 class="title">
+                <div class="title-box">
+                    <h3 id="drink-title" class="title-content">
                     </h3>
+                    <div id="tags" class="title-content tags">
+                    </div>
+                    <div class="thumb">
+                            <img src='../static/img/drinks_noimg_1280.png' alt="No Image"
+                                 onerror="if (this.src !== 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
+                                 class="src">
+                    </div>
                 </div>
-                <div class="align-items-start">
+                <div class="bottom-container">
                     <div id="left-pane" class="info-col">
                         <div class="desc">
-                            <h4>Description</h4>
+                            <h5>Description</h5>
                             <p id="desc"></p>
                             <br>
                         </div>
                         <div class="ingredients">
-                            <h4>Ingredients</h4>
+                            <h5>Ingredients</h5>
                             <ul id="ingredients"></ul>
-                        </div>
-                    </div>
-                    <div id="right-pane" class="info-col">
-
-                        <div class="thumb">
-                            <img src='../static/img/drinks_noimg_1280.png' alt="No Image"
-                                 onerror="if (this.src !== 'error.jpg') this.src = '../static/img/drinks_noimg_1280.png';"
-                                 class="src">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div style="display: none">
+        <!--Template for tag buttons-->
+        <a data-type="template" href="" class="badge badge-pill badge-dark align-middle">Tag</a>
     </div>
 </div>
 <!--Script for dropdown multi select-->
@@ -169,6 +173,28 @@
         parsed.forEach(function (d) {
             const element = document.querySelector("div[data-type='template']").cloneNode(true);
 
+            let tags = d['tags'] && d['tags'].length > 0 ? d['tags'] : [];
+
+            if (d['rating'] && d['rating'] > 0) {
+                tags.push(d['rating'] + '★');
+            }
+
+            if (d['categories'] && d['categories'].length > 0) {
+                d['categories'].forEach((cat) => {
+                    if (!(cat in tags)) {
+                        tags.push(cat)
+                    }
+                });
+            }
+
+            const tagsElem = element.querySelector("#tags");
+            tags.forEach((tag) => {
+                const tagElem = document.querySelector("a[data-type='template']").cloneNode(true);
+                tagElem.textContent = tag;
+                tagElem.onclick = () => { submitQuery('?search=' + tag + '&ingredients') };
+                tagsElem.appendChild(tagElem);
+            });
+
             let ingredientsUl = element.querySelector("#ingredients");
             for (let i = 0; i < d.ingredients.length; i++) {
                 let item = document.createElement('li');
@@ -176,19 +202,21 @@
                 ingredientsUl.appendChild(item);
             }
 
-            element.querySelector("h3.title").textContent = d.name;
+            element.querySelector("h3#drink-title").textContent = d.name;
             element.querySelector("#desc").textContent = d.description;
             // element.querySelector("#ingredients").textContent = d.ingredients.toString();
             element.querySelector("img.src").src = d.src;
             element.style.display = "";
             document.getElementById("drink-output").appendChild(element);
+
+
         });
 
     }
 
     $(document).ready(function () {
         postData("", callbackJSONFunc, '/good-ingredients/');
-        console.log(suggestions)
+        console.log(suggestions);
 
         // if page has search string on load, use that
         const url = new URL(window.location);
