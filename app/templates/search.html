@@ -9,46 +9,51 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Rocktails</a>
+            <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery2(null)">
+                <div class="form-group">
+                    <label for="tags">
+                        <input id="search-form2" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
+                        <input id="ingredients-form2" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
+                    </label>
+                    <br>
+                </div>
+                <input type="submit" class="btn btn-primary" value="Go">
+            </form>
+        </div>
+    </div>
+</nav>
 <div id="header">
     <a href="/" id="logo">Rocktails</a>
     <div class="topcorner">
-    <div>Project Name: ROCKTAILS</div>
-    <div>Students:</div>
-    <li>Kerri Diamond: kd333</li>
-    <li>Kaitlin Green: kg345</li>
-    <li>William Lin: wrl48</li>
-    <li>Megan Rochlin: mjr395</li>
-    <li>Nathaniel Schickler: njs59</li>
-</div>
+        <div>Project Name: ROCKTAILS</div>
+        <div>Students:</div>
+        <li>Kerri Diamond: kd333</li>
+        <li>Kaitlin Green: kg345</li>
+        <li>William Lin: wrl48</li>
+        <li>Megan Rochlin: mjr395</li>
+        <li>Nathaniel Schickler: njs59</li>
+    </div>
+    <div id="formDiv">
+        <form id="query-form2" class="form-inline global-search" onsubmit="return submitQuery(null)">
+            <div class="form-group">
+                <label for="tags">
+                    <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
+                    <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
+                </label>
+                <br>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Go">
+        </form>
+    </div>
 </div>
 <br><br>
-<div id="intro">
-    <p>Type in how you feel or what occasion you'd like drinks for. Next, Specify if there are any ingredients you would like to use. Finally, add any flavor profiles to make your search more specific.</p>
-</div>
-<form id="query-form" class="form-inline global-search" onsubmit="return submitQuery(null)">
-    <div class="form-group">
-        <label for="tags">
-            <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
-            <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
-        </label>
-        <br><br>
-        <div id="list3" class="dropdown-check-list" tabindex="100">
-            <span class="anchor">Filter with Flavor Profiles</span>
-            <ul class="items">
-                <li><input id="flavorProfAny" name="flavorProfile" type="checkbox" value="any"/><label for="flavorProfAny">Any</label></li>
-                <li><input id="flavorProfFrozen" name="flavorProfile" type="checkbox" value="frozen"/><label for="flavorProfFrozen">Frozen</label></li>
-                <li><input id="flavorProfFruity" name="flavorProfile" type="checkbox" value="fruity"/><label for="flavorProfFruity">Fruity</label></li>
-                <li><input id="flavorProfHot" name="flavorProfile" type="checkbox" value="hot"/><label for="flavorProfHot">Hot</label></li>
-                <li><input id="flavorProfSavory" name="flavorProfile" type="checkbox" value="savory"/><label for="flavorProfSavory">Savory</label></li>
-                <li><input id="flavorProfSour" name="flavorProfile" type="checkbox" value="sour"/><label for="flavorProfSour">Sour</label></li>
-                <li><input id="flavorProfSpicy" name="flavorProfile" type="checkbox" value="spicy"/><label for="flavorProfSpicy">Spicy</label></li>
-                <li><input id="flavorProfSweet" name="flavorProfile" type="checkbox" value="sweet"/><label for="flavorProfSweet">Sweet</label></li>
-            </ul>
-        </div>
-    </div>
-    <br><br>
-    <input type="submit" class="btn btn-primary" value="Go">
-</form>
+<!--<div id="intro">-->
+<!--    <p>Type in how you feel or what occasion you'd like drinks for. Next, Specify if there are any ingredients you would like to use. Finally, add any flavor profiles to make your search more specific.</p>-->
+<!--</div>-->
 
 <div class="container-fluid">
     <div id="drink-output" class="container-fluid">
@@ -90,22 +95,28 @@
         <a data-type="template" href="" class="badge badge-pill badge-dark align-middle">Tag</a>
     </div>
 </div>
-<!--Script for dropdown multi select-->
-<script type="text/javascript">
-    jQuery(function ($) {
-        var checkList = $('.dropdown-check-list');
-        checkList.on('click', 'span.anchor', function(event){
-            var element = $(this).parent();
 
-            if ( element.hasClass('visible') )
-            {
-                element.removeClass('visible');
-            }
-            else
-            {
-                element.addClass('visible');
-            }
+<script>
+    /*---------------------------------------*/
+    /*	NAVIGATION AND NAVIGATION VISIBLE ON SCROLL
+    /*---------------------------------------*/
+    $( window ).on( "load", function() {
+        mainNav();
+        $(window).scroll(function() {
+            mainNav();
         });
+        function mainNav() {
+            var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+            if (top > 350) $('.navbar-fixed-top').stop().animate({
+                "opacity": '1',
+                "top": '0'
+            });
+            else $('.navbar-fixed-top').stop().animate({
+                "top": '-70',
+                "opacity": '0'
+            });
+
+        }
     });
 </script>
 
@@ -121,6 +132,37 @@
         } else {
             const inputsSearch = $('#search-form').val();
             const inputsIngredients = $('#ingredients-form').val();
+            searchUrl = "?search=" + inputsSearch;
+            searchUrl += "&ingredients=" + inputsIngredients;
+            searchUrl = searchUrl.toLowerCase();
+        }
+
+        const url = new URL(window.location);
+        const urlBase = url.origin;
+
+        const queryPath = "/search-results/";
+
+        console.log(searchUrl);
+        const newUrl = urlBase + searchUrl;
+
+        postData('data', resultCallbackFunc, queryPath + searchUrl);
+
+        if (window.history.pushState) {
+            //prevents browser from storing history with each change:
+            window.history.pushState({"id": newUrl}, 'Results', newUrl);
+        }
+
+        return false;
+    }
+
+    function submitQuery2(searchStr = null) {
+        let searchUrl = '';
+
+        if (searchStr) {
+            searchUrl = searchStr;
+        } else {
+            const inputsSearch = $('#search-form2').val();
+            const inputsIngredients = $('#ingredients-form2').val();
             searchUrl = "?search=" + inputsSearch;
             searchUrl += "&ingredients=" + inputsIngredients;
             searchUrl = searchUrl.toLowerCase();
