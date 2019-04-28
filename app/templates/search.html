@@ -13,11 +13,11 @@
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">Rocktails</a>
-            <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery(null)">
+            <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery2(null)">
                 <div class="form-group">
                     <label for="tags">
-                        <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
-                        <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
+                        <input id="search-form2" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
+                        <input id="ingredients-form2" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
                     </label>
                     <br>
                 </div>
@@ -38,7 +38,7 @@
         <li>Nathaniel Schickler: njs59</li>
     </div>
     <div id="formDiv">
-        <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery(null)">
+        <form id="query-form2" class="form-inline global-search" onsubmit="return submitQuery(null)">
             <div class="form-group">
                 <label for="tags">
                     <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
@@ -128,6 +128,37 @@
         } else {
             const inputsSearch = $('#search-form').val();
             const inputsIngredients = $('#ingredients-form').val();
+            searchUrl = "?search=" + inputsSearch;
+            searchUrl += "&ingredients=" + inputsIngredients;
+            searchUrl = searchUrl.toLowerCase();
+        }
+
+        const url = new URL(window.location);
+        const urlBase = url.origin;
+
+        const queryPath = "/search-results/";
+
+        console.log(searchUrl);
+        const newUrl = urlBase + searchUrl;
+
+        postData('data', resultCallbackFunc, queryPath + searchUrl);
+
+        if (window.history.pushState) {
+            //prevents browser from storing history with each change:
+            window.history.pushState({"id": newUrl}, 'Results', newUrl);
+        }
+
+        return false;
+    }
+
+    function submitQuery2(searchStr = null) {
+        let searchUrl = '';
+
+        if (searchStr) {
+            searchUrl = searchStr;
+        } else {
+            const inputsSearch = $('#search-form2').val();
+            const inputsIngredients = $('#ingredients-form2').val();
             searchUrl = "?search=" + inputsSearch;
             searchUrl += "&ingredients=" + inputsIngredients;
             searchUrl = searchUrl.toLowerCase();
