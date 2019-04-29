@@ -253,6 +253,13 @@
             document.getElementById("drink-output").appendChild(element);
         });
         loading = false;
+
+
+        if (parsed.length === 0) {
+            let nonetxt = document.createElement('h5');
+            nonetxt.textContent = 'No results found :(';
+            document.getElementById("drink-output").appendChild(nonetxt);
+        }
     }
 
     $(document).ready(function () {
