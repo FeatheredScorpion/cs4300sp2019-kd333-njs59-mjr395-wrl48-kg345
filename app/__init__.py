@@ -64,8 +64,6 @@ def compute_idf(inv_idx, n_docs, min_df=10, max_df_ratio=0.95):
     result = {}
     for word in inv_idx:
         DF = len(inv_idx[word])
-        # if word == '.':
-        #     print(DF)
         if DF >= min_df:
             IDF = math.log((n_docs / (1 + DF)), 2)
             if DF / n_docs <= max_df_ratio:
@@ -78,7 +76,7 @@ def compute_doc_norms(index, idf, n_docs):
     result = np.zeros(n_docs)
     # print(n_docs)
     for word in index:
-        for doc in index[word]:
+        for (doc, category) in index[word]:
             if word in idf:
                 result[doc] += idf[word] ** 2
     result = np.sqrt(result) 
@@ -86,18 +84,26 @@ def compute_doc_norms(index, idf, n_docs):
 
 
 def index_search(query, index, idf, doc_norms):
+    category_weights = {
+    'review': 1.2,
+    'title': 1.35,
+    'tags': 1.3,
+    'description': 1,
+    'categories' : 1.3
+    }
     dic = {}
     tokens = tokenize(query.lower())
     for token in tokens:
         if token in index:
-            for (doc_id) in index[token]:
+            for (doc_id, category) in index[token]:
+                #print(category)
                 if doc_id not in dic:
                     idf_token = 0
                     if token in idf:
                         idf_token = idf[token]
-                    dic[doc_id] = tokens.count(token) * idf_token * idf_token
+                    dic[doc_id] = category_weights[category] * float(tokens.count(token) * idf_token * idf_token)
                 else:
-                    dic[doc_id] += tokens.count(token)
+                    dic[doc_id] += float(tokens.count(token)) * category_weights[category]
 
     # compute query norm
     q = 0
@@ -140,23 +146,63 @@ def search():
     global inverted_index
     inverted_index = {}
     global reverse_index_good_words
-    reverse_index_good_words= {}
+    reverse_index_good_words = {}
+
+
     words = {}
     doc_index = 0
     for drink in data["drinks"]:
         # print(drink["reviews"])
         n_docs.append(drink["name"])
-        tokens = tokenize(drink["description"]) + tokenize(drink["name"])
+        tokens = []
         for review in drink["reviews"]:
-            tokens = tokens + tokenize(review["body"])
+        	tokens = tokens + tokenize(review["body"])
         for token in tokens:
-            if token not in words:
-                words[token] = 0
-            words[token] += 1
-            if token not in inverted_index:
-                inverted_index[token] = []
-            inverted_index[token].append(doc_index)  # make a tuple
+        	if token not in words:
+        		words[token] = 0
+        	words[token] += 1
+        	if token not in inverted_index:
+        		inverted_index[token] = []
+        	inverted_index[token].append((doc_index, 'review'))
+        tokens = tokenize(drink["name"])     
+        for token in tokens:
+        	if token not in words:
+        		words[token] = 0
+        	words[token] += 1
+        	if token not in inverted_index:
+        		inverted_index[token] = []
+        	inverted_index[token].append((doc_index, 'title'))   
+        tokens = tokenize(drink["description"])
+        for token in tokens:
+        	if token not in words:
+        		words[token] = 0
+        	words[token] += 1
+        	if token not in inverted_index:
+        		inverted_index[token] = []
+        	inverted_index[token].append((doc_index, 'description'))
+        tokens = []
+        for tag in drink["tags"]:
+        	tokens = tokens + tokenize(tag)
+        for token in tokens:
+        	if token not in words:
+        		words[token] = 0
+        	words[token] += 1
+        	if token not in inverted_index:
+        		# print(token)
+        		inverted_index[token] = []
+        	inverted_index[token].append((doc_index, 'tags'))
+        tokens = []
+        for tag in drink["categories"]:
+        	tokens = tokens + tokenize(tag)
+        for token in tokens:
+        	if token not in words:
+        		words[token] = 0
+        	words[token] += 1
+        	if token not in inverted_index:
+        		inverted_index[token] = []
+        	inverted_index[token].append((doc_index, 'categories'))
         doc_index += 1
+
     good_words = []
     index = 0
     for word in words:
@@ -176,7 +222,7 @@ def search():
             drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
         for ingredient in drink_ingredients:
             if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.1, results[reverse_doc_index[drink_index]][1])
+                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.2, results[reverse_doc_index[drink_index]][1])
         drink_index += 1 
     results.sort(key = lambda x: x[0], reverse = True)
     print(results)
@@ -232,7 +278,6 @@ def return_ingredients():
     good_words = []
     words = {}
     for drink in data["drinks"]:
-        print(drink["ingredients"])
         tokens = []
         for item in drink["ingredients"]:
         	tokens += tokenize(item)
