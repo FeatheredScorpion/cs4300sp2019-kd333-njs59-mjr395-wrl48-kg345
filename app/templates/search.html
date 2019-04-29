@@ -6,7 +6,10 @@
     <link rel="shortcut icon" type="image/png" href="../static/img/favicon-1.png"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+    <link rel="stylesheet" href="/static/bootstrap-tagsinput/dist/bootstrap-tagsinput.css"/>
+    <script src="/static/bootstrap-tagsinput/dist/bootstrap-tagsinput.js"></script>
+    <script type="text/javascript" src="static/js/typeahead.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -41,7 +44,7 @@
         <form id="query-form2" class="form-inline global-search" onsubmit="return submitQuery(null)">
             <div class="form-group">
                 <label for="tags">
-                    <input id="search-form" type="text" name="search" class="form-control" placeholder="Occasion (e.g. 'Baby Shower')">
+                    <input id="search-form" type="text" name="search" class="form-control"  placeholder="Occasion (e.g. 'Baby Shower') ">
                     <input id="ingredients-form" type="text" name="ingredients" class="form-control" placeholder="List Ingredients (e.g. 'vodka, sprite')">
                 </label>
                 <br>
@@ -119,10 +122,8 @@
 <script>
     var suggestions = [];
     var ingredients = [];
-
     function submitQuery(searchStr = null) {
         let searchUrl = '';
-
         if (searchStr) {
             searchUrl = searchStr;
         } else {
@@ -132,28 +133,20 @@
             searchUrl += "&ingredients=" + inputsIngredients;
             searchUrl = searchUrl.toLowerCase();
         }
-
         const url = new URL(window.location);
         const urlBase = url.origin;
-
         const queryPath = "/search-results/";
-
         console.log(searchUrl);
         const newUrl = urlBase + searchUrl;
-
         postData('data', resultCallbackFunc, queryPath + searchUrl);
-
         if (window.history.pushState) {
             //prevents browser from storing history with each change:
             window.history.pushState({"id": newUrl}, 'Results', newUrl);
         }
-
         return false;
     }
-
     function submitQuery2(searchStr = null) {
         let searchUrl = '';
-
         if (searchStr) {
             searchUrl = searchStr;
         } else {
@@ -163,25 +156,18 @@
             searchUrl += "&ingredients=" + inputsIngredients;
             searchUrl = searchUrl.toLowerCase();
         }
-
         const url = new URL(window.location);
         const urlBase = url.origin;
-
         const queryPath = "/search-results/";
-
         console.log(searchUrl);
         const newUrl = urlBase + searchUrl;
-
         postData('data', resultCallbackFunc, queryPath + searchUrl);
-
         if (window.history.pushState) {
             //prevents browser from storing history with each change:
             window.history.pushState({"id": newUrl}, 'Results', newUrl);
         }
-
         return false;
     }
-
     function postData(input, callback, url) {
         const queryObj = {
             type: "POST",
@@ -193,31 +179,24 @@
         console.log(queryObj);
         $.ajax(queryObj);
     }
-
     function callbackJSONFunc(response) {
         // set suggestions
         suggestions = JSON.parse(response);
     }
-
     
-
     function resultCallbackFunc(response) {
         //then parse and display the response
         const parsed = JSON.parse(response);
         console.log(parsed);
-
         $('#drink-output').empty();
-
         parsed.forEach(function (d) {
             const element = document.querySelector("div[data-type='template']").cloneNode(true);
-
             let ingredientsUl = element.querySelector("#ingredients");
             for (let i = 0; i < d.ingredients.length; i++) {
                 let item = document.createElement('li');
                 item.appendChild(document.createTextNode(d.ingredients[i]));
                 ingredientsUl.appendChild(item);
             }
-
             element.querySelector("h3.title").textContent = d.name;
             element.querySelector("#desc").textContent = d.description;
             // element.querySelector("#ingredients").textContent = d.ingredients.toString();
@@ -225,54 +204,154 @@
             element.style.display = "";
             document.getElementById("drink-output").appendChild(element);
         });
-
     }
+    
+    suggestions = []
 
-    $(document).ready(function () {
-        postData("", callbackJSONFunc, '/good-ingredients/');
-        console.log(suggestions)
+    postData("", callbackJSONFunc, '/good-ingredients/');
 
-        // if page has search string on load, use that
-        const url = new URL(window.location);
-        const searchStr = url.search;
-        if (searchStr.length > 0) {
-            submitQuery(searchStr);
-        }
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substringRegex;
 
-        $("#ingredients-form")
-        // don't navigate away from the field on tab when selecting an item
-            .on("keydown", function (event) {
-                if (event.keyCode === $.ui.keyCode.TAB &&
-                    $(this).autocomplete("instance").menu.active) {
-                    event.preventDefault();
-                }
-            })
-            .autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    // delegate back to autocomplete, but extract the last term
-                    response($.ui.autocomplete.filter(
-                        suggestions,
-                        request.term.split(/,\s*/).pop()
-                    ));
-                },
-                focus: function () {
-                    // prevent value inserted on focus
-                    return false;
-                },
-                select: function (event, ui) {
-                    var terms = this.value.split(/,\s*/);
-                    // remove the current input
-                    terms.pop();
-                    // add the selected item
-                    terms.push(ui.item.value);
-                    // add placeholder to get the comma-and-space at the end
-                    terms.push("");
-                    this.value = terms.join(", ");
-                    return false;
-                }
-            });
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        matches.push(str);
+      }
     });
+
+    cb(matches);
+  };
+};
+
+$('#ingredients-form').tagsinput({
+    typeaheadjs: {
+  hint: true,
+  highlight: true,
+  minLength: 1,
+  name: 'states',
+  source: substringMatcher(suggestions)
+}});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // $("#search-form").tagsinput('items')
+    // $("#ingredients-form").tagsinput('items')
+
+    // function postData(input, callback, url) {
+    //     const queryObj = {
+    //         type: "POST",
+    //         url: url,
+    //         data: {param: input},
+    //         async: false, //has to be false!
+    //         success: callback
+    //     };
+    //     console.log(queryObj);
+    //     $.ajax(queryObj);
+    // }
+
+    // function callbackJSONFunc(response) {
+    //     // set suggestions
+    //     suggestions = JSON.parse(response);
+    // }
+
+    
+
+    // function resultCallbackFunc(response) {
+    //     //then parse and display the response
+    //     const parsed = JSON.parse(response);
+    //     console.log(parsed);
+
+    //     $('#drink-output').empty();
+
+    //     parsed.forEach(function (d) {
+    //         const element = document.querySelector("div[data-type='template']").cloneNode(true);
+
+    //         let ingredientsUl = element.querySelector("#ingredients");
+    //         for (let i = 0; i < d.ingredients.length; i++) {
+    //             let item = document.createElement('li');
+    //             item.appendChild(document.createTextNode(d.ingredients[i]));
+    //             ingredientsUl.appendChild(item);
+    //         }
+
+    //         element.querySelector("h3.title").textContent = d.name;
+    //         element.querySelector("#desc").textContent = d.description;
+    //         // element.querySelector("#ingredients").textContent = d.ingredients.toString();
+    //         element.querySelector("img.src").src = d.src;
+    //         element.style.display = "";
+    //         document.getElementById("drink-output").appendChild(element);
+    //     });
+
+    // }
+
+    // $(document).ready(function () {
+    //     postData("", callbackJSONFunc, '/good-ingredients/');
+    //     console.log(suggestions)
+
+    //     // if page has search string on load, use that
+    //     const url = new URL(window.location);
+    //     const searchStr = url.search;
+    //     if (searchStr.length > 0) {
+    //         submitQuery(searchStr);
+    //     }
+
+    //     $("#ingredients-form")
+    //     // don't navigate away from the field on tab when selecting an item
+    //         .on("keydown", function (event) {
+    //             if (event.keyCode === $.ui.keyCode.TAB &&
+    //                 $(this).autocomplete("instance").menu.active) {
+    //                 event.preventDefault();
+    //             }
+    //         })
+    //         .autocomplete({
+    //             minLength: 0,
+    //             source: function (request, response) {
+    //                 // delegate back to autocomplete, but extract the last term
+    //                 response($.ui.autocomplete.filter(
+    //                     suggestions,
+    //                     request.term.split(/,\s*/).pop()
+    //                 ));
+    //             },
+    //             focus: function () {
+    //                 // prevent value inserted on focus
+    //                 return false;
+    //             },
+    //             select: function (event, ui) {
+    //                 var terms = this.value.split(/,\s*/);
+    //                 // remove the current input
+    //                 terms.pop();
+    //                 // add the selected item
+    //                 terms.push(ui.item.value);
+    //                 // add placeholder to get the comma-and-space at the end
+    //                 terms.push("");
+    //                 this.value = terms.join(", ");
+    //                 return false;
+    //             }
+    //         });
+    // });
 
 </script>
 </body>
