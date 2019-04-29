@@ -182,9 +182,12 @@ def search():
     print(results)
     results = [n_docs[x[1]] for x in results]
     #results = [x for x in results if x in drinks_w_ingredients]
-    results = results[:5]
-    print(results)
-    output = [x for x in data["drinks"] if x["name"] in results]
+    results = results[:20]
+    output = []
+    for name in results:
+    	for drink in data[drinks]:
+    		if name == drink["name"]:
+    			output += drink
     return json.dumps(output)
 
 
