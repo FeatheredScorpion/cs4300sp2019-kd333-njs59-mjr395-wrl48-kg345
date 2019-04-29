@@ -21,7 +21,7 @@
                     </label>
                     <br>
                 </div>
-                <input type="submit" class="btn btn-primary" value="Go">
+                <input type="submit" class="btn btn-success" value="Go">
             </form>
         </div>
     </div>
@@ -46,11 +46,11 @@
                 </label>
                 <br>
             </div>
-            <input type="submit" class="btn btn-primary" value="Go">
+            <input type="submit" class="btn btn-success" value="Go">
         </form>
     </div>
 </div>
-<br><br>
+<br>
 <!--<div id="intro">-->
 <!--    <p>Type in how you feel or what occasion you'd like drinks for. Next, Specify if there are any ingredients you would like to use. Finally, add any flavor profiles to make your search more specific.</p>-->
 <!--</div>-->
@@ -76,12 +76,12 @@
                 <div class="bottom-container">
                     <div id="left-pane" class="info-col">
                         <div class="desc">
-                            <h5>Description</h5>
+                            <h4>Description</h4>
                             <p id="desc"></p>
                             <br>
                         </div>
                         <div class="ingredients">
-                            <h5>Ingredients</h5>
+                            <h4>Ingredients</h4>
                             <ul id="ingredients"></ul>
                         </div>
                     </div>
@@ -214,6 +214,7 @@
 
         parsed.forEach(function (d) {
             const element = document.querySelector("div[data-type='template']").cloneNode(true);
+            element.setAttribute("data-type","");
 
             let tags = d['tags'] && d['tags'].length > 0 ? d['tags'] : [];
 
@@ -234,6 +235,7 @@
                 const tagElem = document.querySelector("a[data-type='template']").cloneNode(true);
                 tagElem.textContent = tag;
                 tagElem.onclick = () => { submitQuery('?search=' + tag + '&ingredients') };
+                console.log(tagElem);
                 tagsElem.appendChild(tagElem);
             });
 

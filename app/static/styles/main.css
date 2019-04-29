@@ -2,12 +2,22 @@ body {
     background-color: #eee;
 }
 
+label {
+    margin: 0;
+}
+
 .navbar {
     margin-bottom: 0px;
 }
+
 .navbar-fixed-top  {
     top:-70px;
     opacity:0;
+}
+
+#query-form {
+    margin-bottom: 0;
+    display: flex;
 }
 
 #header {
@@ -18,7 +28,7 @@ body {
     position: relative;
     min-width: 100%;
     max-width: 100%;
-    height: 500px;
+    height: 400px;
 }
 
 #header:before {
@@ -34,7 +44,7 @@ body {
 
 #formDiv {
     position: relative;
-    padding-top: 325px;
+    padding-top: 300px;
     display: block;
     text-align: center;
 }
@@ -61,7 +71,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     text-shadow: steelblue 3px 2px 0;
     position: absolute;
     z-index: 999;
-    top: 40%;
+    top: 35%;
     left: 50%;
     transform: translate(-50%, -50%);
     margin: 0;
@@ -85,37 +95,21 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     text-shadow: none;
 }
 
-@media (min-width: 1200px) {
-    .container {
-        max-width: 970px;
-    }
+.global-search {
+    text-align: center;
+    padding: 10px;
+    display: inline-block;
+    margin-bottom: 0;
 }
 
-@media (min-width: 400px) {
-    .global-search {
-        padding: 20px 0;
-        text-align: center;
-    }
-
-    .global-search {
-        text-align: center;
-        padding: 10px;
-    }
-
-    .global-search .form-control {
-        width: 300px;
-        border-radius: 20px;
-    }
-
-    .global-search * {
-        display: inline-block;
-        margin-bottom: 0;
-    }
+.global-search .form-control {
+    width: 300px;
+    border-radius: 20px;
 }
 
 .topcorner {
     position: absolute;
-    top: 10%;
+    top: 10px;
     right: 1%;
     font-size: smaller;
     height: 0;
@@ -176,6 +170,10 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     padding-left: 5px;
     padding-bottom: 5px;
     display: inline-block;
+}
+
+.badge {
+    margin-right: 5px;
 }
 
 .thumb {
@@ -249,62 +247,6 @@ https://codepen.io/Dreamdealer/pen/yEmwd
 
 #ingredients {
     text-transform: capitalize;
-}
-
-.dropdown-check-list{
-    display: inline-block;
-    background-color: white;
-}
-.dropdown-check-list:focus{
-    outline:0;
-}
-.dropdown-check-list .anchor {
-    position: relative;
-    cursor: pointer;
-    display: inline-block;
-    padding-top:5px;
-    padding-left:5px;
-    padding-bottom:5px;
-    padding-right: 30px;
-    border:1px #ccc solid;
-}
-.dropdown-check-list .anchor:after {
-    position: absolute;
-    content: "";
-    border-left: 2px solid black;
-    border-top: 2px solid black;
-    padding: 5px;
-    right: 10px;
-    top: 20%;
-    -moz-transform: rotate(-135deg);
-    -ms-transform: rotate(-135deg);
-    -o-transform: rotate(-135deg);
-    -webkit-transform: rotate(-135deg);
-    transform: rotate(-135deg);
-}
-.dropdown-check-list .anchor:active:after {
-    right: 8px;
-    top: 21%;
-}
-.dropdown-check-list ul.items {
-    padding: 2px;
-    display: none;
-    margin: 0;
-    border: 1px solid #ccc;
-    border-top: none;
-}
-.dropdown-check-list ul.items li {
-    list-style: none;
-}
-.dropdown-check-list.visible .anchor {
-    color: #0094ff;
-}
-.dropdown-check-list.visible .items {
-    display: block;
-}
-
-#intro{
-    text-align: center;
 }
 
 *::-webkit-scrollbar-track
