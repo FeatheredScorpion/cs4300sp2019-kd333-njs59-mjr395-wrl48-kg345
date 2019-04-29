@@ -85,7 +85,11 @@
                         <div class="desc">
                             <h4>Description</h4>
                             <p id="desc"></p>
-                            <br>
+                            <div id="related-container">
+                                <h5>Other drinks you might enjoy...</h5>
+                                <div id="related-drinks" class="title-content tags">
+                                </div>
+                            </div>
                         </div>
                         <div class="ingredients">
                             <h4>Ingredients</h4>
@@ -100,6 +104,7 @@
     <div style="display: none">
         <!--Template for tag buttons-->
         <a data-type="template" href="" class="badge badge-pill badge-dark align-middle">Tag</a>
+        <span data-type="template" href="" class="badge badge-pill badge-dark align-middle">Rating</span>
     </div>
 </div>
 
@@ -129,9 +134,11 @@
 </script>
 
 <script>
-    loading = false;
+    var loading = false;
     var suggestions = [];
     var ingredients = [];
+    var searchedURL = '';
+    var resultsLoaded = 0;
 
     $(document).ready(function(){
         console.log('heil satan');
@@ -155,7 +162,13 @@
         const urlBase = url.origin;
         const queryPath = "/search-results/";
         const newUrl = urlBase + searchUrl;
-        postData('data', resultCallbackFunc, queryPath + searchUrl);
+
+        postData('data',
+            (results) => { return resultCallbackFunc(results, false, true) },
+            queryPath + searchUrl
+        );
+        searchedURL = queryPath + searchUrl;
+
         if (window.history.pushState) {
             //prevents browser from storing history with each change:
             window.history.pushState({"id": newUrl}, 'Results', newUrl);
@@ -210,22 +223,21 @@
         });
     }
 
-    function resultCallbackFunc(response) {
+    function resultCallbackFunc(response, append = false, displayNoneFound = true) {
         //then parse and display the response
         loading = true;
         const parsed = JSON.parse(response);
-        console.log(parsed)
-        json = []
-        $('#drink-output').empty();
+        if (!append) {
+            $('#drink-output').empty();
+            resultsLoaded = 0;
+        }
+        console.log(parsed);
+
         parsed.forEach(function (d) {
             const element = document.querySelector("div[data-type='template']").cloneNode(true);
             element.setAttribute("data-type", "");
 
             let tags = d['tags'] && d['tags'].length > 0 ? d['tags'] : [];
-
-            if (d['rating'] && d['rating'] > 0) {
-                tags.push(d['rating'].substring(0, 3) + '★');
-            }
 
             if (d['categories'] && d['categories'].length > 0) {
                 d['categories'].forEach((cat) => {
@@ -242,8 +254,34 @@
                 tagElem.onclick = () => {
                     submitQuery('?search=' + tag + '&ingredients')
                 };
+                tagElem.setAttribute("data-type", "");
                 tagsElem.appendChild(tagElem);
             });
+
+            if (d['rating'] && d['rating'] > 0) {
+                const ratingTag = document.querySelector("span[data-type='template']").cloneNode(true);
+                ratingTag.textContent = d['rating'].substring(0, 3) + '★';
+                ratingTag.setAttribute("data-type", "");
+                tagsElem.appendChild(ratingTag);
+            }
+
+            let related = d['related'] && d['related'].length > 0 ? d['related'] : [];
+            const relatedsElem = element.querySelector("#related-drinks");
+            related.forEach((r) => {
+                const relatedElem = document.querySelector("a[data-type='template']").cloneNode(true);
+                relatedElem.textContent = r['name'];
+                relatedElem.onclick = () => {
+                    submitQuery('?search=' + r['name'] + '&ingredients')
+                };
+                relatedElem.style = "opacity: " + r['score'];
+                relatedElem.setAttribute("data-type", "");
+                relatedsElem.appendChild(relatedElem);
+            });
+
+            if (related.length === 0) {
+                const relatedCont = relatedsElem.parentNode;
+                relatedCont.parentNode.removeChild(relatedCont);
+            }
 
             let ingredientsUl = element.querySelector("#ingredients");
             for (let i = 0; i < d.ingredients.length; i++) {
@@ -258,11 +296,12 @@
             element.querySelector("img.src").src = d.src;
             element.style.display = "";
             document.getElementById("drink-output").appendChild(element);
+            resultsLoaded++;
         });
         loading = false;
 
 
-        if (parsed.length === 0) {
+        if (parsed.length === 0 && displayNoneFound) {
             let nonetxt = document.createElement('h5');
             nonetxt.textContent = 'No results found :(';
             document.getElementById("drink-output").appendChild(nonetxt);
@@ -282,10 +321,15 @@
 
     //infinite scroll
     $(window).scroll(function() {
-        if($(window).scrollTop() >= $(document).height() - screen.height){
+        const buffer = 300;
+        if($(window).scrollTop() >= $(document).height() - screen.height - buffer){
             if(!loading){
+                console.log('loading more results...');
                 loading = true;
-                postData("", resultCallbackFunc,'/load-more/');
+                postData(
+                    searchedURL + '&loaded=' + resultsLoaded,
+                    (results) => { return resultCallbackFunc(results, true, false) },
+                    '/load-more/');
             }
           }
         });
