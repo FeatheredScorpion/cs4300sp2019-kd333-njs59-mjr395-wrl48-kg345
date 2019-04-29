@@ -222,16 +222,20 @@ def search():
             drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
         for ingredient in drink_ingredients:
             if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.2, results[reverse_doc_index[drink_index]][1])
+                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.3, results[reverse_doc_index[drink_index]][1])
         drink_index += 1 
     results.sort(key = lambda x: x[0], reverse = True)
-    print(results)
     results = [n_docs[x[1]] for x in results]
     #results = [x for x in results if x in drinks_w_ingredients]
-    results = results[:5]
+    results = results[:20]
     print(results)
+    r = []
+    for name in results:
+    	for drink in data["drinks"]:
+    		if drink["name"] == name:
+    			r.append(drink)
     output = [x for x in data["drinks"] if x["name"] in results]
-    return json.dumps(output)
+    return json.dumps(r)
 
 
 # returns an array of good types
