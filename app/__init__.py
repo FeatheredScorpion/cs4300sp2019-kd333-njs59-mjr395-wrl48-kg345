@@ -209,7 +209,7 @@ def search():
     query = request.args.get('search')
     ingredients = tokenize(request.args.get('ingredients'))
     r = []
-    if query[0] == '"' and query[-1] == '"':
+    if query != "" and query[0] == '"' and query[-1] == '"':
     	stripped = query[1:-1]
     	for drink in data["drinks"]:
     		if drink["name"].lower() == stripped.lower():
