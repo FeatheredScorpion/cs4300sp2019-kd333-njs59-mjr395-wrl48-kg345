@@ -216,7 +216,7 @@
             let tags = d['tags'] && d['tags'].length > 0 ? d['tags'] : [];
 
             if (d['rating'] && d['rating'] > 0) {
-                tags.push(d['rating'] + '★');
+                tags.push(d['rating'].substring(0, 3) + '★');
             }
 
             if (d['categories'] && d['categories'].length > 0) {
