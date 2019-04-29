@@ -53,6 +53,8 @@ n_doc = []
 
 words = {}
 
+
+
 # HTTP error handling
 @app.errorhandler(404)
 def not_found(error):
@@ -133,7 +135,6 @@ def index_search(query, index, idf, doc_norms):
 
     return (result, reverse_doc_index)
 
-@app.route("/create-inverted-index/", methods=['GET', 'POST'])
 def create_inverted_index():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
@@ -339,4 +340,6 @@ def return_ingredients():
         if words[word] > 1:
             good_words.append(word)
     return json.dumps(good_words)
+
+create_inverted_index()
 

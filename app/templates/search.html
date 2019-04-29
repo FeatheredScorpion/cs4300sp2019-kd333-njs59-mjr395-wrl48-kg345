@@ -140,13 +140,6 @@
     var searchedURL = '';
     var resultsLoaded = 0;
 
-    $(document).ready(function(){
-        console.log('heil satan');
-        $.ajax({ url: "/create-inverted-index/",
-                context: document.body,
-    })});
-        
-
     function submitQuery(searchStr = null, formNum = '') {
         let searchUrl = '';
         if (searchStr) {
