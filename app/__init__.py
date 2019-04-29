@@ -74,7 +74,6 @@ def compute_idf(inv_idx, n_docs, min_df=10, max_df_ratio=0.95):
 # compute norms
 def compute_doc_norms(index, idf, n_docs):
     result = np.zeros(n_docs)
-    # print(n_docs)
     for word in index:
         for (doc, category) in index[word]:
             if word in idf:
@@ -96,7 +95,6 @@ def index_search(query, index, idf, doc_norms):
     for token in tokens:
         if token in index:
             for (doc_id, category) in index[token]:
-                #print(category)
                 if doc_id not in dic:
                     idf_token = 0
                     if token in idf:
@@ -135,11 +133,8 @@ def search():
     data = json.load(open(json_url))
 
     # getting the query document
-    print(request)
     query = request.args.get('search')
     ingredients = tokenize(request.args.get('ingredients'))
-    print(ingredients)
-    print(query)
 
     n_docs = []
     # construct inverted index
@@ -152,7 +147,6 @@ def search():
     words = {}
     doc_index = 0
     for drink in data["drinks"]:
-        # print(drink["reviews"])
         n_docs.append(drink["name"])
         tokens = []
         for review in drink["reviews"]:
@@ -188,7 +182,6 @@ def search():
         		words[token] = 0
         	words[token] += 1
         	if token not in inverted_index:
-        		# print(token)
         		inverted_index[token] = []
         	inverted_index[token].append((doc_index, 'tags'))
         tokens = []
@@ -214,6 +207,13 @@ def search():
     idf = compute_idf(inverted_index, len(good_words))
     doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
     (results, reverse_doc_index) = index_search(query, inverted_index, idf, doc_norms)
+    #if no query, search based on ingredients
+    print(reverse_doc_index)
+    print(query)
+    if(len(query) == 0):
+        for i in range(len(n_docs)):
+            reverse_doc_index[i] = i
+            results.append((1, i))
     drink_index = 0
     for drink in data["drinks"]:
         drink_ingredients = []
@@ -222,13 +222,14 @@ def search():
             drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
         for ingredient in drink_ingredients:
             if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.3, results[reverse_doc_index[drink_index]][1])
+                print('hello')
+                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.4, results[reverse_doc_index[drink_index]][1])
         drink_index += 1 
+
     results.sort(key = lambda x: x[0], reverse = True)
     results = [n_docs[x[1]] for x in results]
     #results = [x for x in results if x in drinks_w_ingredients]
     results = results[:20]
-    print(results)
     r = []
     for name in results:
     	for drink in data["drinks"]:
@@ -294,6 +295,5 @@ def return_ingredients():
     for word in words:
         if words[word] > 1:
             good_words.append(word)
-    print(good_words)
     return json.dumps(good_words)
 
