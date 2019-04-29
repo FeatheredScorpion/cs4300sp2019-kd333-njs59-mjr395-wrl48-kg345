@@ -133,6 +133,13 @@
     var suggestions = [];
     var ingredients = [];
 
+    $(document).ready(function(){
+        console.log('heil satan');
+        $.ajax({ url: "/create-inverted-index/",
+                context: document.body,
+    })});
+        
+
     function submitQuery(searchStr = null, formNum = '') {
         let searchUrl = '';
         if (searchStr) {
@@ -275,12 +282,7 @@
 
     //infinite scroll
     $(window).scroll(function() {
-        console.log($(window).scrollTop())
-        console.log($(document).height())
-        console.log(screen.height)
         if($(window).scrollTop() >= $(document).height() - screen.height){
-            console.log('hello');
-            console.log(loading)
             if(!loading){
                 loading = true;
                 postData("", resultCallbackFunc,'/load-more/');
