@@ -177,6 +177,7 @@
             async: true,
             success: callback
         };
+        console.log(queryObj);
         $.ajax(queryObj);
     }
 
@@ -232,14 +233,6 @@
 
             let tags = d['tags'] && d['tags'].length > 0 ? d['tags'] : [];
 
-            if (d['categories'] && d['categories'].length > 0) {
-                d['categories'].forEach((cat) => {
-                    if (!(cat in tags)) {
-                        tags.push(cat)
-                    }
-                });
-            }
-
             const tagsElem = element.querySelector("#tags");
             tags.forEach((tag) => {
                 const tagElem = document.querySelector("a[data-type='template']").cloneNode(true);
@@ -264,7 +257,7 @@
                 const relatedElem = document.querySelector("a[data-type='template']").cloneNode(true);
                 relatedElem.textContent = r['name'];
                 relatedElem.onclick = () => {
-                    submitQuery('?search=' + r['name'] + '&ingredients')
+                    submitQuery('?search="' + r['name'] + '"&ingredients')
                 };
                 relatedElem.style = "opacity: " + r['score'];
                 relatedElem.setAttribute("data-type", "");

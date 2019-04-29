@@ -1,4 +1,6 @@
 # Gevent needed for sockets
+from functools import lru_cache
+
 from gevent import monkey
 
 monkey.patch_all()
@@ -46,13 +48,12 @@ good_types = []
 reverse_index_good_words = {}
 
 results = []
-#range or results to display - page - 5 : 5
+# range or results to display - page - 5 : 5
 page = 10
-#document numbers
+# document numbers
 n_doc = []
 
 words = {}
-
 
 
 # HTTP error handling
@@ -60,7 +61,7 @@ words = {}
 def not_found(error):
     return render_template("404.html"), 404
 
-
+@lru_cache(maxsize=32)
 def tokenize(text):
     """Returns a list of tokens from an input string.
     
@@ -89,17 +90,16 @@ def compute_doc_norms(index, idf, n_docs):
         for (doc, category) in index[word]:
             if word in idf:
                 result[doc] += idf[word] ** 2
-    result = np.sqrt(result) 
+    result = np.sqrt(result)
     return result
-
 
 def index_search(query, index, idf, doc_norms):
     category_weights = {
-    'review': 1.3,
-    'title': 1.6,
-    'tags': 1.3,
-    'description': 1,
-    'categories' : 1.3
+        'review': 1.3,
+        'title': 1.6,
+        'tags': 1.3,
+        'description': 1,
+        'categories': 1.3
     }
     dic = {}
     tokens = tokenize(query.lower())
@@ -127,11 +127,11 @@ def index_search(query, index, idf, doc_norms):
     i = 0
     reverse_doc_index = {}
     for doc in dic:
-    	reverse_doc_index[doc] = i
-    	doc_norm = doc_norms[doc]
-    	score = (1 + dic[doc]) / (doc_norm * q + 1)
-    	result.append((score, doc))
-    	i = i + 1
+        reverse_doc_index[doc] = i
+        doc_norm = doc_norms[doc]
+        score = (1 + dic[doc]) / (doc_norm * q + 1)
+        result.append((score, doc))
+        i = i + 1
 
     return (result, reverse_doc_index)
 
@@ -151,54 +151,56 @@ def create_inverted_index():
         n_docs.append(drink["name"])
         tokens = []
         for review in drink["reviews"]:
-        	tokens = tokens + tokenize(review["body"])
+            tokens = tokens + tokenize(review["body"])
         for token in tokens:
-        	if token not in words:
-        		words[token] = 0
-        	words[token] += 1
-        	if token not in inverted_index:
-        		inverted_index[token] = []
-        	inverted_index[token].append((doc_index, 'review'))
-        tokens = tokenize(drink["name"])     
+            if token not in words:
+                words[token] = 0
+            words[token] += 1
+            if token not in inverted_index:
+                inverted_index[token] = []
+            inverted_index[token].append((doc_index, 'review'))
+        tokens = tokenize(drink["name"])
         for token in tokens:
-        	if token not in words:
-        		words[token] = 0
-        	words[token] += 1
-        	if token not in inverted_index:
-        		inverted_index[token] = []
-        	inverted_index[token].append((doc_index, 'title'))   
+            if token not in words:
+                words[token] = 0
+            words[token] += 1
+            if token not in inverted_index:
+                inverted_index[token] = []
+            inverted_index[token].append((doc_index, 'title'))
         tokens = tokenize(drink["description"])
         for token in tokens:
-        	if token not in words:
-        		words[token] = 0
-        	words[token] += 1
-        	if token not in inverted_index:
-        		inverted_index[token] = []
-        	inverted_index[token].append((doc_index, 'description'))
+            if token not in words:
+                words[token] = 0
+            words[token] += 1
+            if token not in inverted_index:
+                inverted_index[token] = []
+            inverted_index[token].append((doc_index, 'description'))
         tokens = []
         for tag in drink["tags"]:
-        	tokens = tokens + tokenize(tag)
+            tokens = tokens + tokenize(tag)
         for token in tokens:
-        	if token not in words:
-        		words[token] = 0
-        	words[token] += 1
-        	if token not in inverted_index:
-        		inverted_index[token] = []
-        	inverted_index[token].append((doc_index, 'tags'))
+            if token not in words:
+                words[token] = 0
+            words[token] += 1
+            if token not in inverted_index:
+                inverted_index[token] = []
+            inverted_index[token].append((doc_index, 'tags'))
         tokens = []
         for tag in drink["categories"]:
-        	tokens = tokens + tokenize(tag)
+            tokens = tokens + tokenize(tag)
         for token in tokens:
-        	if token not in words:
-        		words[token] = 0
-        	words[token] += 1
-        	if token not in inverted_index:
-        		inverted_index[token] = []
-        	inverted_index[token].append((doc_index, 'categories'))
+            if token not in words:
+                words[token] = 0
+            words[token] += 1
+            if token not in inverted_index:
+                inverted_index[token] = []
+            inverted_index[token].append((doc_index, 'categories'))
         doc_index += 1
     return json.dumps([])
 
+
 # returns a list of drinks that match the paramter
+@lru_cache(maxsize=32)
 @app.route("/search-results/", methods=['GET', 'POST'])
 def search():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -210,87 +212,94 @@ def search():
     ingredients = tokenize(request.args.get('ingredients'))
     r = []
     if query[0] == '"' and query[-1] == '"':
-    	stripped = query[1:-1]
-    	for drink in data["drinks"]:
-    		if drink["name"].lower() == stripped.lower():
-    			r.append(drink)
+        stripped = query[1:-1]
+        for drink in data["drinks"]:
+            if drink["name"].lower() == stripped.lower():
+                r.append(drink)
     else:
-	    # construct inverted index
-	    global inverted_index
-	    # inverted_index = {}
-	    global reverse_index_good_words
-	    reverse_index_good_words = {}
-	    global results
-	    results = []
-	    global page
-	    page = 10
-	    global n_docs
+        # construct inverted index
+        global inverted_index
+        # inverted_index = {}
+        global reverse_index_good_words
+        reverse_index_good_words = {}
+        global results
+        results = []
+        global page
+        page = 10
+        global n_docs
 
-	    if not inverted_index:
-	    	create_inverted_index()
+        if not inverted_index:
+            create_inverted_index()
 
-	    results = []
+        results = []
 
+        good_words = []
+        index = 0
+        for word in words:
+            if words[word] > 1:
+                good_words.append(word)
+                reverse_index_good_words[word] = index
+                index += 1
+        # compute idf
+        idf = compute_idf(inverted_index, len(good_words))
+        doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
+        (results, reverse_doc_index) = index_search(query, inverted_index, idf, doc_norms)
+        # if no query, search based on ingredients
 
-	    good_words = []
-	    index = 0
-	    for word in words:
-	        if words[word] > 1:
-	            good_words.append(word)
-	            reverse_index_good_words[word] = index
-	            index += 1
-	    # compute idf
-	    idf = compute_idf(inverted_index, len(good_words))
-	    doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
-	    (results, reverse_doc_index) = index_search(query, inverted_index, idf, doc_norms)
-	    #if no query, search based on ingredients
+        if (len(query) == 0):
+            for i in range(len(n_docs)):
+                reverse_doc_index[i] = i
+                results.append((1, i))
+        drink_index = 0
+        for drink in data["drinks"]:
+            drink_ingredients = []
+            for i in drink["ingredients"]:
+                drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
+                drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
+            for ingredient in drink_ingredients:
+                if ingredient in ingredients and drink_index in reverse_doc_index:
+                    results[reverse_doc_index[drink_index]] = (
+                        results[reverse_doc_index[drink_index]][0] * 1.8, results[reverse_doc_index[drink_index]][1])
+            drink_index += 1
 
-	    if(len(query) == 0):
-	        for i in range(len(n_docs)):
-	            reverse_doc_index[i] = i
-	            results.append((1, i))
-	    drink_index = 0
-	    for drink in data["drinks"]:
-	        drink_ingredients = []
-	        for i in drink["ingredients"]:
-	            drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
-	            drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
-	        for ingredient in drink_ingredients:
-	            if ingredient in ingredients and drink_index in reverse_doc_index:
-	                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.8, results[reverse_doc_index[drink_index]][1])
-	        drink_index += 1 
-
-	    results.sort(key = lambda x: x[0], reverse = True)
-	    results = [n_docs[x[1]] for x in results]
-	    #results = [x for x in results if x in drinks_w_ingredients]
-	    print(results)
-	    results = results
-	    r = []
-	    for name in results[:page]:
-	    	for drink in data["drinks"]:
-	    		if drink["name"] == name:
-	    			r.append(drink)
-	    output = [x for x in data["drinks"] if x["name"] in results]
+        results.sort(key=lambda x: x[0], reverse=True)
+        results = [n_docs[x[1]] for x in results]
+        # results = [x for x in results if x in drinks_w_ingredients]
+        print(results)
+        results = results
+        r = []
+        for name in results[:page]:
+            for drink in data["drinks"]:
+                if drink["name"] == name:
+                    r.append(drink)
+        output = [x for x in data["drinks"] if x["name"] in results]
     return json.dumps(r)
 
+
+@lru_cache(maxsize=128)
 @app.route("/load-more/", methods=['GET', 'POST'])
 def load_more_results():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
     global page
+    query = request.args.get('search')
+    ingredients = tokenize(request.args.get('ingredients'))
+    key = query + ingredients
+    print(key)
     r = []
     re = results[page:page + 5]
     for name in re:
-    	for drink in data["drinks"]:
-    		if drink["name"] == name:
-    			r.append(drink)
+        for drink in data["drinks"]:
+            if drink["name"] == name:
+                r.append(drink)
     output = [x for x in data["drinks"] if x["name"] in re]
     page = page + 5
     return json.dumps(r)
 
 
 # returns an array of good types
+@lru_cache(maxsize=4)
 @app.route("/good-types/", methods=['GET', 'POST'])
 def return_good_types():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -315,6 +324,7 @@ def return_good_types():
             good_types.append(word)
     return json.dumps(good_types)
 
+@lru_cache(maxsize=4)
 @app.route("/autocomplete-types/", methods=['GET', 'POST'])
 def return_autocomplete_types():
     global good_types
@@ -322,8 +332,8 @@ def return_autocomplete_types():
         return_good_types()
 
 
-
 # returns an array of good types from ingredients
+@lru_cache(maxsize=4)
 @app.route("/good-ingredients/", methods=['GET', 'POST'])
 def return_ingredients():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -336,7 +346,7 @@ def return_ingredients():
     for drink in data["drinks"]:
         tokens = []
         for item in drink["ingredients"]:
-        	tokens += tokenize(item)
+            tokens += tokenize(item)
         if tokens != []:
             for token in tokens:
                 if token not in words:
@@ -348,5 +358,5 @@ def return_ingredients():
             good_words.append(word)
     return json.dumps(good_words)
 
-create_inverted_index()
 
+create_inverted_index()
