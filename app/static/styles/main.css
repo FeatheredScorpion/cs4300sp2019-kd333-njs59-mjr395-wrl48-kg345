@@ -44,7 +44,7 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-
+ 
 
 /*
 https://codepen.io/Dreamdealer/pen/yEmwd
@@ -149,7 +149,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     font-size: 24px;
     margin: 0;
     padding: 5px;
-    background: #91cde9;
+    background: #5bc0de;
 }
 
 #info-container {
@@ -178,7 +178,7 @@ https://codepen.io/Dreamdealer/pen/yEmwd
 #right-pane {
     float: right;
     width: 20%;
-    background: #c2e1f5;
+    background: #dea35b;
 }
 
 .info-col img {
@@ -206,6 +206,16 @@ https://codepen.io/Dreamdealer/pen/yEmwd
     padding-left: 20px;
     overflow: auto;
 }
+
+.btn {
+    background-color: #5bc0de;
+    border-color: #5bc0de;
+}
+
+.btn:hover {
+    background-color: #79b3c5;
+    border-color: #79b3c5;
+} 
 
 .ingredients {
     width: 40%;
