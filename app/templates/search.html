@@ -16,7 +16,7 @@
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="/">Rocktails</a>
-            <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery2(null)">
+            <form id="query-form" class="form-inline global-search" onsubmit="return submitQuery(null, '2')">
                 <div class="form-group">
                     <label for="tags">
                         <input id="search-form2" type="text" name="search" class="form-control"
@@ -132,13 +132,13 @@
     var suggestions = [];
     var ingredients = [];
 
-    function submitQuery(searchStr = null) {
+    function submitQuery(searchStr = null, formNum = '') {
         let searchUrl = '';
         if (searchStr) {
             searchUrl = searchStr;
         } else {
-            const inputsSearch = $('#search-form').val();
-            const inputsIngredients = $('#ingredients-form').val();
+            const inputsSearch = $('#search-form' + formNum).val();
+            const inputsIngredients = $('#ingredients-form' + formNum).val();
             searchUrl = "?search=" + inputsSearch;
             searchUrl += "&ingredients=" + inputsIngredients;
             searchUrl = searchUrl.toLowerCase();
@@ -153,31 +153,6 @@
             //prevents browser from storing history with each change:
             window.history.pushState({"id": newUrl}, 'Results', newUrl);
         }
-        return false;
-    }
-
-    function submitQuery2(searchStr = null) {
-        let searchUrl = '';
-        if (searchStr) {
-            searchUrl = searchStr;
-        } else {
-            const inputsSearch = $('#search-form2').val();
-            const inputsIngredients = $('#ingredients-form2').val();
-            searchUrl = "?search=" + inputsSearch;
-            searchUrl += "&ingredients=" + inputsIngredients;
-            searchUrl = searchUrl.toLowerCase();
-        }
-        const url = new URL(window.location);
-        const urlBase = url.origin;
-        const queryPath = "/search-results/";
-        console.log(searchUrl);
-        const newUrl = urlBase + searchUrl;
-        postData('data', resultCallbackFunc, queryPath + searchUrl);
-        if (window.history.pushState) {
-            //prevents browser from storing history with each change:
-            window.history.pushState({"id": newUrl}, 'Results', newUrl);
-        }
-
         return false;
     }
 
@@ -186,7 +161,7 @@
             type: "POST",
             url: url,
             data: {param: input},
-            async: false, //has to be false!
+            async: true,
             success: callback
         };
         console.log(queryObj);
@@ -196,6 +171,37 @@
     function callbackJSONFunc(response) {
         // set suggestions
         suggestions = JSON.parse(response);
+        var substringMatcher = function (strs) {
+            return function findMatches(q, cb) {
+                var matches, substringRegex;
+
+                // an array that will be populated with substring matches
+                matches = [];
+
+                // regex used to determine if a string contains the substring `q`
+                substrRegex = new RegExp(q, 'i');
+
+                // iterate through the pool of strings and for any string that
+                // contains the substring `q`, add it to the `matches` array
+                $.each(strs, function (i, str) {
+                    if (substrRegex.test(str)) {
+                        matches.push(str);
+                    }
+                });
+
+                cb(matches);
+            };
+        };
+
+        $('#ingredients-form').tagsinput({
+            typeaheadjs: {
+                hint: true,
+                highlight: true,
+                minLength: 1,
+                name: 'states',
+                source: substringMatcher(suggestions)
+            }
+        });
     }
 
     function resultCallbackFunc(response) {
@@ -228,7 +234,6 @@
                 tagElem.onclick = () => {
                     submitQuery('?search=' + tag + '&ingredients')
                 };
-                console.log(tagElem);
                 tagsElem.appendChild(tagElem);
             });
 
@@ -250,39 +255,13 @@
 
     $(document).ready(function () {
         postData("", callbackJSONFunc, '/good-ingredients/');
-        console.log(suggestions);
 
-        var substringMatcher = function (strs) {
-            return function findMatches(q, cb) {
-                var matches, substringRegex;
-
-                // an array that will be populated with substring matches
-                matches = [];
-
-                // regex used to determine if a string contains the substring `q`
-                substrRegex = new RegExp(q, 'i');
-
-                // iterate through the pool of strings and for any string that
-                // contains the substring `q`, add it to the `matches` array
-                $.each(strs, function (i, str) {
-                    if (substrRegex.test(str)) {
-                        matches.push(str);
-                    }
-                });
-
-                cb(matches);
-            };
-        };
-
-        $('#ingredients-form').tagsinput({
-            typeaheadjs: {
-                hint: true,
-                highlight: true,
-                minLength: 1,
-                name: 'states',
-                source: substringMatcher(suggestions)
-            }
-        });
+        // if page has search string on load, use that
+        const url = new URL(window.location);
+        const searchStr = url.search;
+        if (searchStr.length > 0) {
+            submitQuery(searchStr);
+        }
     });
 
 </script>
