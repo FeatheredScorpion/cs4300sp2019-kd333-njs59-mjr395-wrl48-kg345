@@ -125,12 +125,12 @@ def index_search(query, index, idf, doc_norms):
 @app.route("/search-results/", methods=['GET', 'POST'])
 def search():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
     # getting the query document
     print(request)
-    query = request.args.get('query')
+    query = request.args.get('search')
     ingredients = tokenize(request.args.get('ingredients'))
     print(ingredients)
     print(query)
@@ -176,7 +176,7 @@ def search():
             drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
         for ingredient in drink_ingredients:
             if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.5, results[reverse_doc_index[drink_index]][1])
+                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.1, results[reverse_doc_index[drink_index]][1])
         drink_index += 1 
     results.sort(key = lambda x: x[0], reverse = True)
     print(results)
@@ -192,7 +192,7 @@ def search():
 @app.route("/good-types/", methods=['GET', 'POST'])
 def return_good_types():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
     # good types
@@ -225,15 +225,18 @@ def return_autocomplete_types():
 @app.route("/good-ingredients/", methods=['GET', 'POST'])
 def return_ingredients():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
     # good types
     good_words = []
     words = {}
     for drink in data["drinks"]:
-        tokens = tokenize(drink["ingredients"])
-        if tokens is not None:
+        print(drink["ingredients"])
+        tokens = []
+        for item in drink["ingredients"]:
+        	tokens += tokenize(item)
+        if tokens != []:
             for token in tokens:
                 if token not in words:
                     words[token] = 0
@@ -242,32 +245,6 @@ def return_ingredients():
     for word in words:
         if words[word] > 1:
             good_words.append(word)
+    print(good_words)
     return json.dumps(good_words)
 
-# # returns a list of resulting elements that satisfies the boolean search
-# @app.route("/booleanSearch/", methods=['GET', 'POST'])
-# def boolean_search(query, index=inverted_index, tokenizer=treebank_tokenizer):
-#     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-#     json_url = os.path.join(SITE_ROOT, "static", "drinks.json")
-#     data = json.load(open(json_url))
-
-#     ans = []
-#     temp1 = set()
-#     temp2 = set()
-#     tokenized = tokenizer.tokenize(query.lower())
-#     count = 0
-#     for x in tokenized:
-#         temp2 = set([a[0] for a in index[x]])
-#         if(count == 0):
-#             ans = list(temp2)
-#             count+=1
-#             continue
-#         if(len(ans) == 0):
-#             return ans
-#         if(len(x) == 1 and x in string.punctuation):
-#             count+=1
-#             continue
-#         else:
-#             temp1 = set(ans)
-#             ans = list(temp2.intersection(temp1))
-#     return ans
