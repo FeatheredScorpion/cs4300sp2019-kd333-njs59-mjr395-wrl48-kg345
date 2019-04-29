@@ -208,62 +208,69 @@ def search():
     # getting the query document
     query = request.args.get('search')
     ingredients = tokenize(request.args.get('ingredients'))
-
-    # construct inverted index
-    global inverted_index
-    # inverted_index = {}
-    global reverse_index_good_words
-    reverse_index_good_words = {}
-    global results
-    results = []
-    global page
-    page = 10
-    global n_docs
-
-    if not inverted_index:
-    	create_inverted_index()
-
-    results = []
-
-
-    good_words = []
-    index = 0
-    for word in words:
-        if words[word] > 1:
-            good_words.append(word)
-            reverse_index_good_words[word] = index
-            index += 1
-    # compute idf
-    idf = compute_idf(inverted_index, len(good_words))
-    doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
-    (results, reverse_doc_index) = index_search(query, inverted_index, idf, doc_norms)
-    #if no query, search based on ingredients
-
-    if(len(query) == 0):
-        for i in range(len(n_docs)):
-            reverse_doc_index[i] = i
-            results.append((1, i))
-    drink_index = 0
-    for drink in data["drinks"]:
-        drink_ingredients = []
-        for i in drink["ingredients"]:
-            drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
-            drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
-        for ingredient in drink_ingredients:
-            if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.8, results[reverse_doc_index[drink_index]][1])
-        drink_index += 1 
-
-    results.sort(key = lambda x: x[0], reverse = True)
-    results = [n_docs[x[1]] for x in results]
-    #results = [x for x in results if x in drinks_w_ingredients]
-    results = results
     r = []
-    for name in results[:page]:
+    if query[0] == '"' and query[-1] == '"':
+    	stripped = query[1:-1]
     	for drink in data["drinks"]:
-    		if drink["name"] == name:
+    		if drink["name"].lower() == stripped.lower():
     			r.append(drink)
-    output = [x for x in data["drinks"] if x["name"] in results]
+    else:
+	    # construct inverted index
+	    global inverted_index
+	    # inverted_index = {}
+	    global reverse_index_good_words
+	    reverse_index_good_words = {}
+	    global results
+	    results = []
+	    global page
+	    page = 10
+	    global n_docs
+
+	    if not inverted_index:
+	    	create_inverted_index()
+
+	    results = []
+
+
+	    good_words = []
+	    index = 0
+	    for word in words:
+	        if words[word] > 1:
+	            good_words.append(word)
+	            reverse_index_good_words[word] = index
+	            index += 1
+	    # compute idf
+	    idf = compute_idf(inverted_index, len(good_words))
+	    doc_norms = compute_doc_norms(inverted_index, idf, len(n_docs))
+	    (results, reverse_doc_index) = index_search(query, inverted_index, idf, doc_norms)
+	    #if no query, search based on ingredients
+
+	    if(len(query) == 0):
+	        for i in range(len(n_docs)):
+	            reverse_doc_index[i] = i
+	            results.append((1, i))
+	    drink_index = 0
+	    for drink in data["drinks"]:
+	        drink_ingredients = []
+	        for i in drink["ingredients"]:
+	            drink_ingredients += [tokenize(x) for x in drink["ingredients"]]
+	            drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
+	        for ingredient in drink_ingredients:
+	            if ingredient in ingredients and drink_index in reverse_doc_index:
+	                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.8, results[reverse_doc_index[drink_index]][1])
+	        drink_index += 1 
+
+	    results.sort(key = lambda x: x[0], reverse = True)
+	    results = [n_docs[x[1]] for x in results]
+	    #results = [x for x in results if x in drinks_w_ingredients]
+	    print(results)
+	    results = results
+	    r = []
+	    for name in results[:page]:
+	    	for drink in data["drinks"]:
+	    		if drink["name"] == name:
+	    			r.append(drink)
+	    output = [x for x in data["drinks"] if x["name"] in results]
     return json.dumps(r)
 
 @app.route("/load-more/", methods=['GET', 'POST'])
