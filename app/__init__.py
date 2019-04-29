@@ -120,7 +120,7 @@ def index_search(query, index, idf, doc_norms):
         if word in tokens:
             if token in idf:
                 idf_token = idf[token]
-            q += ((tokens.count(word)) * idf_token ** 2)
+                q += ((tokens.count(word)) * idf_token ** 2)
     q = q ** .5
 
     result = []
