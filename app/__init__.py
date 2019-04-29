@@ -42,10 +42,16 @@ treebank_tokenizer = TreebankWordTokenizer()
 inverted_index = {}
 # good types
 good_types = []
+
 reverse_index_good_words = {}
+
 results = []
 #range or results to display - page - 5 : 5
 page = 10
+#document numbers
+n_doc = []
+
+words = {}
 
 # HTTP error handling
 @app.errorhandler(404)
@@ -87,8 +93,8 @@ def compute_doc_norms(index, idf, n_docs):
 
 def index_search(query, index, idf, doc_norms):
     category_weights = {
-    'review': 1.2,
-    'title': 1.35,
+    'review': 1.3,
+    'title': 1.6,
     'tags': 1.3,
     'description': 1,
     'categories' : 1.3
@@ -99,13 +105,13 @@ def index_search(query, index, idf, doc_norms):
         if token in index:
             for (doc_id, category) in index[token]:
                 if doc_id not in dic:
-                    idf_token = 0
                     if token in idf:
                         idf_token = idf[token]
-                    dic[doc_id] = category_weights[category] * float(tokens.count(token) * idf_token * idf_token)
+                        dic[doc_id] = category_weights[category] * float(tokens.count(token) * idf_token * idf_token)
                 else:
-                    dic[doc_id] += float(tokens.count(token)) * category_weights[category]
-
+                    if token in idf:
+                        idf_token = idf[token]
+                        dic[doc_id] += category_weights[category] * float(tokens.count(token) * idf_token * idf_token)
     # compute query norm
     q = 0
     for word in index:
@@ -127,31 +133,19 @@ def index_search(query, index, idf, doc_norms):
 
     return (result, reverse_doc_index)
 
-
-# returns a list of drinks that match the paramter
-@app.route("/search-results/", methods=['GET', 'POST'])
-def search():
+@app.route("/create-inverted-index/", methods=['GET', 'POST'])
+def create_inverted_index():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
 
-    # getting the query document
-    query = request.args.get('search')
-    ingredients = tokenize(request.args.get('ingredients'))
-
-    n_docs = []
-    # construct inverted index
     global inverted_index
-    inverted_index = {}
-    global reverse_index_good_words
-    reverse_index_good_words = {}
-    global results
-    results = []
-    global page
-    page = 10
-    results = []
-    words = {}
     doc_index = 0
+    global n_docs
+    n_docs = []
+    global words
+    words = {}
+
     for drink in data["drinks"]:
         n_docs.append(drink["name"])
         tokens = []
@@ -201,6 +195,35 @@ def search():
         		inverted_index[token] = []
         	inverted_index[token].append((doc_index, 'categories'))
         doc_index += 1
+    return json.dumps([])
+
+# returns a list of drinks that match the paramter
+@app.route("/search-results/", methods=['GET', 'POST'])
+def search():
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
+    data = json.load(open(json_url))
+
+    # getting the query document
+    query = request.args.get('search')
+    ingredients = tokenize(request.args.get('ingredients'))
+
+    # construct inverted index
+    global inverted_index
+    # inverted_index = {}
+    global reverse_index_good_words
+    reverse_index_good_words = {}
+    global results
+    results = []
+    global page
+    page = 10
+    global n_docs
+
+    if not inverted_index:
+    	create_inverted_index()
+
+    results = []
+
 
     good_words = []
     index = 0
@@ -227,7 +250,7 @@ def search():
             drink_ingredients = [item for sublist in drink_ingredients for item in sublist]
         for ingredient in drink_ingredients:
             if ingredient in ingredients and drink_index in reverse_doc_index:
-                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.4, results[reverse_doc_index[drink_index]][1])
+                results[reverse_doc_index[drink_index]] = (results[reverse_doc_index[drink_index]][0] * 1.8, results[reverse_doc_index[drink_index]][1])
         drink_index += 1 
 
     results.sort(key = lambda x: x[0], reverse = True)
