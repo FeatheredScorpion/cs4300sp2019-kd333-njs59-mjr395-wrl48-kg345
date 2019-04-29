@@ -129,6 +129,7 @@
 </script>
 
 <script>
+    loading = false;
     var suggestions = [];
     var ingredients = [];
 
@@ -146,7 +147,6 @@
         const url = new URL(window.location);
         const urlBase = url.origin;
         const queryPath = "/search-results/";
-        console.log(searchUrl);
         const newUrl = urlBase + searchUrl;
         postData('data', resultCallbackFunc, queryPath + searchUrl);
         if (window.history.pushState) {
@@ -164,7 +164,6 @@
             async: true,
             success: callback
         };
-        console.log(queryObj);
         $.ajax(queryObj);
     }
 
@@ -206,8 +205,10 @@
 
     function resultCallbackFunc(response) {
         //then parse and display the response
+        loading = true;
         const parsed = JSON.parse(response);
-        console.log(parsed);
+        console.log(parsed)
+        json = []
         $('#drink-output').empty();
         parsed.forEach(function (d) {
             const element = document.querySelector("div[data-type='template']").cloneNode(true);
@@ -251,6 +252,14 @@
             element.style.display = "";
             document.getElementById("drink-output").appendChild(element);
         });
+        loading = false;
+
+
+        if (parsed.length === 0) {
+            let nonetxt = document.createElement('h5');
+            nonetxt.textContent = 'No results found :(';
+            document.getElementById("drink-output").appendChild(nonetxt);
+        }
     }
 
     $(document).ready(function () {
@@ -263,6 +272,21 @@
             submitQuery(searchStr);
         }
     });
+
+    //infinite scroll
+    $(window).scroll(function() {
+        console.log($(window).scrollTop())
+        console.log($(document).height())
+        console.log(screen.height)
+        if($(window).scrollTop() >= $(document).height() - screen.height){
+            console.log('hello');
+            console.log(loading)
+            if(!loading){
+                loading = true;
+                postData("", resultCallbackFunc,'/load-more/');
+            }
+          }
+        });
 
 </script>
 </body>
