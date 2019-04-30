@@ -216,7 +216,13 @@ def search():
     # getting the query document
     query = request.args.get('search')
     ingredients = tokenize(request.args.get('ingredients'))
-    key = 'q' + query + 'i' + request.args.get('ingredients')
+    key = 'q'
+    if query is not None and len(query) > 0:
+        key += query
+    key += 'i'
+    if request.args.get('ingredients') is not None and len(request.args.get('ingredients')) > 0:
+        key + request.args.get('ingredients')
+
     r = []
     if query != "" and query[0] == '"' and query[-1] == '"':
         stripped = query[1:-1]
@@ -296,7 +302,12 @@ def load_more_results():
     query = request.args.get('search')
     ingredients = request.args.get('ingredients')
     pagenum = int(request.args.get('loaded'))
-    key = 'q' + query + 'i' + ingredients
+    key = 'q'
+    if query is not None and len(query) > 0:
+        key += query
+    key += 'i'
+    if ingredients is not None and len(ingredients) > 0:
+        key + request.args.get('ingredients')
     r = []
     prev = []
     if key in result_cache:
