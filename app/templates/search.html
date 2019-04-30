@@ -160,7 +160,7 @@
             (results) => { return resultCallbackFunc(results, false, true) },
             queryPath + searchUrl
         );
-        searchedURL = queryPath + searchUrl;
+        searchedURL = searchUrl;
 
         if (window.history.pushState) {
             //prevents browser from storing history with each change:
@@ -311,11 +311,12 @@
         if($(window).scrollTop() >= $(document).height() - screen.height - buffer){
             if(!loading){
                 console.log('loading more results...');
+                const searchurl = new URL(window.location).search;
                 loading = true;
                 postData(
-                    searchedURL + '&loaded=' + resultsLoaded,
+                    '',
                     (results) => { return resultCallbackFunc(results, true, false) },
-                    '/load-more/');
+                    '/load-more/' + searchurl + '&loaded=' + resultsLoaded);
             }
           }
         });

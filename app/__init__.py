@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 import math
 import numpy as np
 from nltk.tokenize import TreebankWordTokenizer
+import pylru
 
 # Configure app
 socketio = SocketIO()
@@ -55,11 +56,14 @@ n_doc = []
 
 words = {}
 
+result_cache = pylru.lrucache(32)
+
 
 # HTTP error handling
 @app.errorhandler(404)
 def not_found(error):
     return render_template("404.html"), 404
+
 
 @lru_cache(maxsize=32)
 def tokenize(text):
@@ -92,6 +96,7 @@ def compute_doc_norms(index, idf, n_docs):
                 result[doc] += idf[word] ** 2
     result = np.sqrt(result)
     return result
+
 
 def index_search(query, index, idf, doc_norms):
     category_weights = {
@@ -134,6 +139,7 @@ def index_search(query, index, idf, doc_norms):
         i = i + 1
 
     return (result, reverse_doc_index)
+
 
 def create_inverted_index():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -210,8 +216,9 @@ def search():
     # getting the query document
     query = request.args.get('search')
     ingredients = tokenize(request.args.get('ingredients'))
+    key = 'q' + query + 'i' + request.args.get('ingredients')
     r = []
-    if query[0] == '"' and query[-1] == '"':
+    if query != "" and query[0] == '"' and query[-1] == '"':
         stripped = query[1:-1]
         for drink in data["drinks"]:
             if drink["name"].lower() == stripped.lower():
@@ -273,28 +280,33 @@ def search():
                 if drink["name"] == name:
                     r.append(drink)
         output = [x for x in data["drinks"] if x["name"] in results]
+
+    result_cache[key] = results
+
     return json.dumps(r)
 
 
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=64)
 @app.route("/load-more/", methods=['GET', 'POST'])
 def load_more_results():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(SITE_ROOT, "static", "drinks-with-related-and-tags.json")
     data = json.load(open(json_url))
-    global page
+
     query = request.args.get('search')
-    ingredients = tokenize(request.args.get('ingredients'))
-    key = query + ingredients
-    print(key)
+    ingredients = request.args.get('ingredients')
+    pagenum = int(request.args.get('loaded'))
+    key = 'q' + query + 'i' + ingredients
     r = []
-    re = results[page:page + 5]
-    for name in re:
-        for drink in data["drinks"]:
-            if drink["name"] == name:
-                r.append(drink)
-    output = [x for x in data["drinks"] if x["name"] in re]
-    page = page + 5
+    prev = []
+    if key in result_cache:
+        prev = result_cache[key]
+        newpage = prev[pagenum:pagenum + 5]
+        for name in newpage:
+            for drink in data["drinks"]:
+                if drink["name"] == name:
+                    r.append(drink)
+
     return json.dumps(r)
 
 
@@ -323,6 +335,7 @@ def return_good_types():
         if words[word] > 1:
             good_types.append(word)
     return json.dumps(good_types)
+
 
 @lru_cache(maxsize=4)
 @app.route("/autocomplete-types/", methods=['GET', 'POST'])
