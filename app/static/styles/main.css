@@ -350,36 +350,3 @@ https://codepen.io/Dreamdealer/pen/yEmwd
 .tt-suggestion p {
   margin: 0;
 }
-
-/*category tags and ratings*/
-a.badge:hover, a.badge:focus {
-    text-decoration: none;
-    cursor: pointer;
-}
-a:hover, a:focus {
-    color: #fff;
-    text-decoration: underline;
-}
-a:active, a:hover {
-    color: #fff;
-    outline: 0;
-}
-.badge {
-    color: #d1db81;
-    margin-right: 5px;
-    margin-bottom: 2px;
-}
-.badge {
-    display: inline-block;
-    min-width: 10px;
-    padding: 3px 7px;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-    color: #002d1a;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    background-color: #d1db81;
-    border-radius: 10px;
-}
