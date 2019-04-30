@@ -332,7 +332,7 @@
     var x;
     for (i = 0; i < helper.length(); i++) {
         for (x = 0; x < helper[i]['tags'].length(); x++){
-
+            helper[i]['tags'][x].style.backgroundColor = tagColordict[helper[i]['tags'][x]]
         }
     }
     console.log(helper)
