@@ -308,7 +308,10 @@
     //infinite scroll
     $(window).scroll(function() {
         const buffer = 300;
-        if($(window).scrollTop() >= $(document).height() - screen.height - buffer){
+        if(
+            $(window).scrollTop() >= $(document).height() - screen.height - buffer
+            && resultsLoaded > 4
+        ){
             if(!loading){
                 console.log('loading more results...');
                 const searchurl = new URL(window.location).search;
